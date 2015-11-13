@@ -74,7 +74,7 @@ func init() {
 	u.Services.Print()
 
 	// set cors domains
-	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("POST,DELETE", ","))
+	cors.SetDomains(local.Settings.CORS.Sites, strings.Split("GET,POST,DELETE", ","))
 
 }
 
