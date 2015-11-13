@@ -9,8 +9,8 @@ import (
 	"github.com/techjanitor/pram-libs/db"
 	e "github.com/techjanitor/pram-libs/errors"
 
-	local "github.com/techjanitor/pram-post/config"
-	u "github.com/techjanitor/pram-post/utils"
+	local "github.com/techjanitor/pram-admin/config"
+	u "github.com/techjanitor/pram-admin/utils"
 )
 
 type PurgePostModel struct {

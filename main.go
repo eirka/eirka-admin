@@ -14,10 +14,9 @@ import (
 	"github.com/techjanitor/pram-libs/redis"
 	"github.com/techjanitor/pram-libs/validate"
 
-	local "github.com/techjanitor/pram-post/config"
-	c "github.com/techjanitor/pram-post/controllers"
-	m "github.com/techjanitor/pram-post/middleware"
-	u "github.com/techjanitor/pram-post/utils"
+	local "github.com/techjanitor/pram-admin/config"
+	c "github.com/techjanitor/pram-admin/controllers"
+	u "github.com/techjanitor/pram-admin/utils"
 )
 
 var (

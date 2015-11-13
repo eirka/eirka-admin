@@ -10,7 +10,7 @@ import (
 	e "github.com/techjanitor/pram-libs/errors"
 	"github.com/techjanitor/pram-libs/redis"
 
-	"github.com/techjanitor/pram-post/models"
+	"github.com/techjanitor/pram-admin/models"
 )
 
 // DeleteThreadController will delete a tag
