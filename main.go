@@ -86,24 +86,19 @@ func main() {
 	r.NoRoute(c.ErrorController)
 
 	// requires mod perms
-	mod := r.Group("/mod")
-	mod.Use(validate.ValidateParams())
-	mod.Use(auth.Auth(auth.Moderators))
-
-	mod.DELETE("/tag/:id", c.DeleteTagController)
-	mod.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
-	mod.DELETE("/thread/:id", c.DeleteThreadController)
-	mod.DELETE("/post/:thread/:id", c.DeletePostController)
-	mod.POST("/sticky/:thread", c.StickyThreadController)
-	mod.POST("/close/:thread", c.CloseThreadController)
-
-	// requires admin perms
-	admin := r.Group("/admin")
+	admin := r.Group("/")
 	admin.Use(validate.ValidateParams())
-	admin.Use(auth.Auth(auth.Admins))
+	admin.Use(auth.Auth(true))
 
-	admin.DELETE("/thread/:id", c.PurgeThreadController)
-	admin.DELETE("/post/:thread/:id", c.PurgePostController)
+	admin.DELETE("/tag/:id", c.DeleteTagController)
+	admin.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
+	admin.DELETE("/thread/:id", c.DeleteThreadController)
+	admin.DELETE("/post/:thread/:id", c.DeletePostController)
+	admin.POST("/sticky/:thread", c.StickyThreadController)
+	admin.POST("/close/:thread", c.CloseThreadController)
+
+	//admin.DELETE("/thread/:id", c.PurgeThreadController)
+	//admin.DELETE("/post/:thread/:id", c.PurgePostController)
 	//admin.POST("/ban/:ip", c.BanIpController)
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
