@@ -8,6 +8,7 @@ import (
 	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/perms"
 	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-admin/models"
