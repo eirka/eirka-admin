@@ -8,6 +8,7 @@ import (
 	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
 	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/techjanitor/pram-libs/perms"
 	"github.com/techjanitor/pram-libs/redis"
 
 	"github.com/techjanitor/pram-admin/models"
@@ -36,6 +37,21 @@ func CloseThreadController(c *gin.Context) {
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
+		return
+	}
+
+	// check to see if user is allowed to perform action
+	allowed, err := perms.Check(userdata.Id, m.Ib)
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	// if not allowed reject request
+	if !allowed {
+		c.JSON(e.ErrorMessage(e.ErrForbidden))
+		c.Error(e.ErrForbidden)
 		return
 	}
 
