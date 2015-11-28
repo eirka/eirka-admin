@@ -40,6 +40,21 @@ func DeleteImageTagController(c *gin.Context) {
 		return
 	}
 
+	// check to see if user is allowed to perform action
+	allowed, err := perms.Check(userdata.Id, m.Ib)
+	if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err)
+		return
+	}
+
+	// if not allowed reject request
+	if !allowed {
+		c.JSON(e.ErrorMessage(e.ErrForbidden))
+		c.Error(e.ErrForbidden)
+		return
+	}
+
 	// Delete data
 	err = m.Delete()
 	if err != nil {
