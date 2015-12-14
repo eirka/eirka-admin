@@ -7,6 +7,7 @@ import (
 
 	"github.com/techjanitor/pram-libs/audit"
 	"github.com/techjanitor/pram-libs/auth"
+	"github.com/techjanitor/pram-libs/config"
 	e "github.com/techjanitor/pram-libs/errors"
 	"github.com/techjanitor/pram-libs/perms"
 	"github.com/techjanitor/pram-libs/redis"
@@ -44,9 +45,9 @@ func UpdateTagController(c *gin.Context) {
 	// Set parameters to UpdateTagModel
 	m := models.UpdateTagModel{
 		Id:      utf.Id,
-		Ib:      ntf.Ib,
-		Tag:     ntf.Tag,
-		TagType: ntf.Type,
+		Ib:      utf.Ib,
+		Tag:     utf.Tag,
+		TagType: utf.Type,
 	}
 
 	// Test for antispam key from Prim
