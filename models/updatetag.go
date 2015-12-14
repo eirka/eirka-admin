@@ -1,8 +1,7 @@
 package models
 
 import (
-	"database/sql"
-
+	"github.com/techjanitor/pram-libs/config"
 	"github.com/techjanitor/pram-libs/db"
 	e "github.com/techjanitor/pram-libs/errors"
 	"github.com/techjanitor/pram-libs/validate"
@@ -50,7 +49,7 @@ func (i *UpdateTagModel) Status() (err error) {
 	var dupe bool
 
 	// check if there is already a tag
-	err = db.QueryRow("select count(*) from tags where tag_name = ? AND ib_id = ? AND NOT tag_id = ?", i.Tag, i.Ib, i.Id).Scan(&dupe)
+	err = dbase.QueryRow("select count(*) from tags where tag_name = ? AND ib_id = ? AND NOT tag_id = ?", i.Tag, i.Ib, i.Id).Scan(&dupe)
 	if err != nil {
 		return
 	}
@@ -72,7 +71,7 @@ func (i *UpdateTagModel) Update() (err error) {
 		return
 	}
 
-	ps1, err := db.Prepare("UPDATE tags SET tag_name= ?, tagtype_id= ? WHERE tag_id = ?")
+	ps1, err := dbase.Prepare("UPDATE tags SET tag_name= ?, tagtype_id= ? WHERE tag_id = ?")
 	if err != nil {
 		return
 	}
