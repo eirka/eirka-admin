@@ -93,8 +93,8 @@ func UpdateTagController(c *gin.Context) {
 		return
 	}
 
-	// Delete data
-	err = m.Delete()
+	// Update data
+	err = m.Update()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err)
@@ -125,7 +125,7 @@ func UpdateTagController(c *gin.Context) {
 		Ib:     m.Ib,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditUpdateTag,
-		Info:   fmt.Sprintf("%s", m.Name),
+		Info:   fmt.Sprintf("%s", m.Tag),
 	}
 
 	err = audit.Submit()
