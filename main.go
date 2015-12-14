@@ -91,7 +91,7 @@ func main() {
 	admin.Use(auth.Auth(true))
 
 	admin.DELETE("/tag/:id", c.DeleteTagController)
-	admin.POST("/tag/:id", c.UpdateTagController)
+	admin.POST("/tag", c.UpdateTagController)
 	admin.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
 	admin.DELETE("/thread/:id", c.DeleteThreadController)
 	admin.DELETE("/post/:thread/:id", c.DeletePostController)

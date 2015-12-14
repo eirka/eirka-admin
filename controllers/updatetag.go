@@ -29,9 +29,6 @@ func UpdateTagController(c *gin.Context) {
 	var err error
 	var utf updateTagForm
 
-	// Get parameters from validate middleware
-	params := c.MustGet("params").([]uint)
-
 	// get userdata from session middleware
 	userdata := c.MustGet("userdata").(auth.User)
 
