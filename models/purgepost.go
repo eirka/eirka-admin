@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/techjanitor/pram-libs/db"
-	e "github.com/techjanitor/pram-libs/errors"
+	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 
-	local "github.com/techjanitor/pram-admin/config"
-	u "github.com/techjanitor/pram-admin/utils"
+	local "github.com/eirka/eirka-admin/config"
+	u "github.com/eirka/eirka-admin/utils"
 )
 
 type PurgePostModel struct {

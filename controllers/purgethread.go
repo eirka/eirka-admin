@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/techjanitor/pram-libs/audit"
-	"github.com/techjanitor/pram-libs/auth"
-	e "github.com/techjanitor/pram-libs/errors"
-	"github.com/techjanitor/pram-libs/perms"
-	"github.com/techjanitor/pram-libs/redis"
+	"github.com/eirka/eirka-libs/audit"
+	"github.com/eirka/eirka-libs/auth"
+	e "github.com/eirka/eirka-libs/errors"
+	"github.com/eirka/eirka-libs/perms"
+	"github.com/eirka/eirka-libs/redis"
 
-	"github.com/techjanitor/pram-admin/models"
+	"github.com/eirka/eirka-admin/models"
 )
 
 // PurgeThreadController will delete a tag
