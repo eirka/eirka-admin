@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -83,7 +84,7 @@ func (i *PurgePostModel) Delete() (err error) {
 		return
 	}
 
-	var lasttime string
+	var lasttime *time.Time
 
 	// get last post time
 	err = tx.QueryRow("SELECT post_time FROM posts WHERE thread_id = ? ORDER BY post_id DESC LIMIT 1", i.Thread).Scan(&lasttime)

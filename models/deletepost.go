@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -61,7 +62,7 @@ func (i *DeletePostModel) Delete() (err error) {
 		return
 	}
 
-	var lasttime string
+	var lasttime *time.Time
 
 	// get last post time
 	err = tx.QueryRow(`SELECT post_time FROM posts 
