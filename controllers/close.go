@@ -6,10 +6,9 @@ import (
 	"net/http"
 
 	"github.com/eirka/eirka-libs/audit"
-	"github.com/eirka/eirka-libs/auth"
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-libs/perms"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-admin/models"
 )
@@ -21,7 +20,7 @@ func CloseThreadController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(auth.User)
+	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
 	m := &models.CloseModel{
@@ -40,16 +39,8 @@ func CloseThreadController(c *gin.Context) {
 		return
 	}
 
-	// check to see if user is allowed to perform action
-	allowed, err := perms.Check(userdata.Id, m.Ib)
-	if err != nil {
-		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
-		return
-	}
-
-	// if not allowed reject request
-	if !allowed {
+	// check if the user is authorized to perform this functions
+	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
 		c.Error(e.ErrForbidden)
 		return

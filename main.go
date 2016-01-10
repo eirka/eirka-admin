@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eirka/eirka-libs/auth"
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
 	"github.com/eirka/eirka-libs/db"
 	"github.com/eirka/eirka-libs/redis"
+	"github.com/eirka/eirka-libs/user"
 	"github.com/eirka/eirka-libs/validate"
 
 	local "github.com/eirka/eirka-admin/config"
@@ -56,7 +56,7 @@ func init() {
 	r.NewRedisCache()
 
 	// set auth middleware secret
-	auth.Secret = local.Settings.Session.Secret
+	user.Secret = local.Settings.Session.Secret
 
 	// print the starting info
 	StartInfo()
@@ -88,7 +88,7 @@ func main() {
 	// requires mod perms
 	admin := r.Group("/")
 	admin.Use(validate.ValidateParams())
-	admin.Use(auth.Auth(true))
+	admin.Use(user.Auth(true))
 
 	admin.DELETE("/tag/:id", c.DeleteTagController)
 	admin.POST("/tag", c.UpdateTagController)
