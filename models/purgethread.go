@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -17,6 +18,25 @@ type PurgeThreadModel struct {
 	Id   uint
 	Name string
 	Ib   uint
+}
+
+// check struct validity
+func (p *PurgeThreadModel) IsValid() bool {
+
+	if p.Id == 0 {
+		return false
+	}
+
+	if p.Name == "" {
+		return false
+	}
+
+	if p.Ib == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 type ThreadImages struct {
@@ -48,6 +68,11 @@ func (i *PurgeThreadModel) Status() (err error) {
 
 // Delete will remove the entry
 func (i *PurgeThreadModel) Delete() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("PurgeThreadModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

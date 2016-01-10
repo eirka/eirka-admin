@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,6 +13,25 @@ type CloseModel struct {
 	Name   string
 	Ib     uint
 	Closed bool
+}
+
+// check struct validity
+func (c *CloseModel) IsValid() bool {
+
+	if c.Id == 0 {
+		return false
+	}
+
+	if c.Name == "" {
+		return false
+	}
+
+	if c.Ib == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // Status will return info
@@ -37,6 +57,11 @@ func (i *CloseModel) Status() (err error) {
 
 // Toggle will change the thread status
 func (i *CloseModel) Toggle() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("CloseModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

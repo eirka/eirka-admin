@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,6 +13,25 @@ type DeleteThreadModel struct {
 	Name    string
 	Ib      uint
 	Deleted bool
+}
+
+// check struct validity
+func (d *DeleteThreadModel) IsValid() bool {
+
+	if d.Id == 0 {
+		return false
+	}
+
+	if d.Name == "" {
+		return false
+	}
+
+	if d.Ib == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // Status will return info
@@ -37,6 +57,11 @@ func (i *DeleteThreadModel) Status() (err error) {
 
 // Delete will remove the entry
 func (i *DeleteThreadModel) Delete() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("DeleteThreadModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

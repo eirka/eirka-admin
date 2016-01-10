@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,6 +14,29 @@ type UpdateTagModel struct {
 	Ib      uint
 	Tag     string
 	TagType uint
+}
+
+// check struct validity
+func (u *UpdateTagModel) IsValid() bool {
+
+	if u.Id == 0 {
+		return false
+	}
+
+	if u.Ib == 0 {
+		return false
+	}
+
+	if u.Tag == "" {
+		return false
+	}
+
+	if u.TagType == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 func (i *UpdateTagModel) ValidateInput() (err error) {
@@ -64,6 +89,11 @@ func (i *UpdateTagModel) Status() (err error) {
 
 // Update will update the entry
 func (i *UpdateTagModel) Update() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("UpdateTagModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

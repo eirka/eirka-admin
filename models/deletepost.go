@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/eirka/eirka-libs/db"
@@ -14,6 +15,29 @@ type DeletePostModel struct {
 	Ib      uint
 	Name    string
 	Deleted bool
+}
+
+// check struct validity
+func (d *DeletePostModel) IsValid() bool {
+
+	if d.Thread == 0 {
+		return false
+	}
+
+	if d.Id == 0 {
+		return false
+	}
+
+	if d.Ib == 0 {
+		return false
+	}
+
+	if d.Name == "" {
+		return false
+	}
+
+	return true
+
 }
 
 // Status will return info
@@ -41,6 +65,11 @@ func (i *DeletePostModel) Status() (err error) {
 
 // Delete will remove the entry
 func (i *DeletePostModel) Delete() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("DeletePostModel is not valid")
+	}
 
 	// Get transaction handle
 	tx, err := db.GetTransaction()

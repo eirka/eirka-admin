@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,6 +13,29 @@ type DeleteImageTagModel struct {
 	Tag   uint
 	Name  string
 	Ib    uint
+}
+
+// check struct validity
+func (d *DeleteImageTagModel) IsValid() bool {
+
+	if d.Image == 0 {
+		return false
+	}
+
+	if d.Tag == 0 {
+		return false
+	}
+
+	if d.Name == "" {
+		return false
+	}
+
+	if d.Ib == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // Status will return info
@@ -37,6 +61,11 @@ func (i *DeleteImageTagModel) Status() (err error) {
 
 // Delete will remove the entry
 func (i *DeleteImageTagModel) Delete() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("DeleteImageTagModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()

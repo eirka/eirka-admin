@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,6 +20,29 @@ type PurgePostModel struct {
 	Id     uint
 	Ib     uint
 	Name   string
+}
+
+// check struct validity
+func (p *PurgePostModel) IsValid() bool {
+
+	if p.Thread == 0 {
+		return false
+	}
+
+	if p.Id == 0 {
+		return false
+	}
+
+	if p.Id == 0 {
+		return false
+	}
+
+	if p.Name == "" {
+		return false
+	}
+
+	return true
+
 }
 
 type PostImage struct {
@@ -50,6 +74,11 @@ func (i *PurgePostModel) Status() (err error) {
 
 // Delete will remove the entry
 func (i *PurgePostModel) Delete() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("PurgePostModel is not valid")
+	}
 
 	// Get transaction handle
 	tx, err := db.GetTransaction()

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,6 +13,25 @@ type StickyModel struct {
 	Name   string
 	Ib     uint
 	Sticky bool
+}
+
+// check struct validity
+func (s *StickyModel) IsValid() bool {
+
+	if s.Id == 0 {
+		return false
+	}
+
+	if s.Name == "" {
+		return false
+	}
+
+	if s.Ib == 0 {
+		return false
+	}
+
+	return true
+
 }
 
 // Status will return info
@@ -37,6 +57,11 @@ func (i *StickyModel) Status() (err error) {
 
 // Toggle will change the thread status
 func (i *StickyModel) Toggle() (err error) {
+
+	// check model validity
+	if !i.IsValid() {
+		return errors.New("StickyModel is not valid")
+	}
 
 	// Get Database handle
 	dbase, err := db.GetDb()
