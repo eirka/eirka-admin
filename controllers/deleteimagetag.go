@@ -7,7 +7,6 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-libs/perms"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 
