@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-libs/user"
+	//"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-admin/models"
 )
