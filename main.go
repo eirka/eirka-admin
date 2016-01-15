@@ -91,9 +91,11 @@ func main() {
 
 	// requires mod perms
 	admin := r.Group("/")
+
 	admin.Use(validate.ValidateParams())
 	admin.Use(user.Auth(true))
 
+	admin.GET("/statistics/:ib", c.StatisticsController)
 	admin.DELETE("/tag/:id", c.DeleteTagController)
 	admin.POST("/tag", c.UpdateTagController)
 	admin.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
