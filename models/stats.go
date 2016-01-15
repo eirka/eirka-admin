@@ -8,7 +8,7 @@ import (
 // NewModel holds the parameters from the request and also the key for the cache
 type StatisticsModel struct {
 	Ib     uint
-	Result NewType
+	Result StatisticsType
 }
 
 type StatisticsType struct {
@@ -62,7 +62,7 @@ func (i *StatisticsModel) Get() (err error) {
 
 			rows, err := ps1.QueryRow(i, i, previous, i.Ib).Scan(&label, &visitor_count, &hit_count)
 			if err != nil {
-				return
+				return err
 			}
 
 			response.Labels = append(response.Labels, label)
