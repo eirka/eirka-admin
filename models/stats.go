@@ -51,7 +51,7 @@ func (i *StatisticsModel) Get() (err error) {
 	defer ps1.Close()
 
 	// loop through every two hours
-	for hour := 2; hour <= 24; hour++ {
+	for hour := 24; hour >= 2; hour-- {
 		if hour%2 == 0 {
 
 			var label time.Time
