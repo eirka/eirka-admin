@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	e "github.com/eirka/eirka-libs/errors"
-	//"github.com/eirka/eirka-libs/user"
+	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-admin/models"
 )
@@ -17,14 +17,14 @@ func StatisticsController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	//userdata := c.MustGet("userdata").(user.User)
-	//
-	//// check if the user is authorized to perform this functions
-	//if !userdata.IsAuthorized(params[0]) {
-	//	c.JSON(e.ErrorMessage(e.ErrForbidden))
-	//	c.Error(e.ErrForbidden)
-	//	return
-	//}
+	userdata := c.MustGet("userdata").(user.User)
+
+	// check if the user is authorized to perform this functions
+	if !userdata.IsAuthorized(params[0]) {
+		c.JSON(e.ErrorMessage(e.ErrForbidden))
+		c.Error(e.ErrForbidden)
+		return
+	}
 
 	// Initialize model struct
 	m := &models.StatisticsModel{
