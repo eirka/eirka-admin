@@ -17,14 +17,14 @@ func StatisticsController(c *gin.Context) {
 	params := c.MustGet("params").([]uint)
 
 	// get userdata from session middleware
-	userdata := c.MustGet("userdata").(user.User)
-
-	// check if the user is authorized to perform this functions
-	if !userdata.IsAuthorized(params[0]) {
-		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
-		return
-	}
+	//userdata := c.MustGet("userdata").(user.User)
+	//
+	//// check if the user is authorized to perform this functions
+	//if !userdata.IsAuthorized(params[0]) {
+	//	c.JSON(e.ErrorMessage(e.ErrForbidden))
+	//	c.Error(e.ErrForbidden)
+	//	return
+	//}
 
 	// Initialize model struct
 	m := &models.StatisticsModel{
