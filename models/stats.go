@@ -12,8 +12,8 @@ type StatisticsModel struct {
 }
 
 type StatisticsType struct {
-	Labels []*time.Time `json:"labels"`
-	Series []Series     `json:"series"`
+	Labels []time.Time `json:"labels"`
+	Series []Series    `json:"series"`
 }
 
 type Series struct {
@@ -51,16 +51,16 @@ func (i *StatisticsModel) Get() (err error) {
 	defer ps1.Close()
 
 	// loop through every two hours
-	for i := 1; i <= 24; i++ {
-		if i%2 == 0 {
+	for hour := 2; hour <= 24; hour++ {
+		if hour%2 == 0 {
 
 			var label time.Time
 			var visitor_count, hit_count uint
 
 			// period minus two hours
-			previous := (i - 2)
+			previous := (hour - 2)
 
-			rows, err := ps1.QueryRow(i, i, previous, i.Ib).Scan(&label, &visitor_count, &hit_count)
+			err := ps1.QueryRow(hour, hour, previous, i.Ib).Scan(&label, &visitor_count, &hit_count)
 			if err != nil {
 				return err
 			}
