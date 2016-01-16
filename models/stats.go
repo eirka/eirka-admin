@@ -27,10 +27,12 @@ func (i *StatisticsModel) Get() (err error) {
 	// Initialize response header
 	response := StatisticsType{}
 
+	// holds visitors info
 	visitors := Series{
 		Name: "Visitors",
 	}
 
+	// holds count of hits
 	hits := Series{
 		Name: "Hits",
 	}
@@ -50,15 +52,15 @@ func (i *StatisticsModel) Get() (err error) {
 	}
 	defer ps1.Close()
 
-	// loop through every two hours
-	for hour := 24; hour >= 2; hour-- {
-		if hour%2 == 0 {
+	// loop through every four hours
+	for hour := 24; hour >= 4; hour-- {
+		if hour%4 == 0 {
 
 			var label time.Time
 			var visitor_count, hit_count uint
 
 			// period minus two hours
-			previous := (hour - 2)
+			previous := (hour - 4)
 
 			err := ps1.QueryRow(hour, hour, previous, i.Ib).Scan(&label, &visitor_count, &hit_count)
 			if err != nil {
