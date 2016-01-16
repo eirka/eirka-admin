@@ -16,11 +16,10 @@ import (
 
 // update tag input
 type updateTagForm struct {
-	Id       uint   `json:"id" binding:"required"`
-	Ib       uint   `json:"ib" binding:"required"`
-	Tag      string `json:"name" binding:"required"`
-	Type     uint   `json:"type" binding:"required"`
-	Antispam string `json:"askey" binding:"required"`
+	Id   uint   `json:"id" binding:"required"`
+	Ib   uint   `json:"ib" binding:"required"`
+	Tag  string `json:"name" binding:"required"`
+	Type uint   `json:"type" binding:"required"`
 }
 
 // UpdateTagController will delete a tag
@@ -44,14 +43,6 @@ func UpdateTagController(c *gin.Context) {
 		Ib:      utf.Ib,
 		Tag:     utf.Tag,
 		TagType: utf.Type,
-	}
-
-	// Test for antispam key from Prim
-	antispam := utf.Antispam
-	if antispam != config.Settings.Antispam.AntispamKey {
-		c.JSON(http.StatusBadRequest, gin.H{"error_message": e.ErrInvalidKey.Error()})
-		c.Error(e.ErrInvalidKey)
-		return
 	}
 
 	// check if the user is authorized to perform this functions
