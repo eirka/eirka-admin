@@ -14,6 +14,9 @@ type StatisticsModel struct {
 type StatisticsType struct {
 	Visitors uint        `json:"visitors"`
 	Hits     uint        `json:"hits"`
+	Threads  uint        `json:"threads"`
+	Posts    uint        `json:"posts"`
+	Images   uint        `json:"images"`
 	Labels   []time.Time `json:"labels"`
 	Series   []Series    `json:"series"`
 }
@@ -45,15 +48,33 @@ func (i *StatisticsModel) Get() (err error) {
 		return
 	}
 
-	// get total stats
-	err = dbase.QueryRow(`SELECT  COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits 
+	// get board stats
+	err = dbase.QueryRow(`SELECT (SELECT COUNT(thread_id)
+    FROM threads
+    WHERE threads.ib_id=imageboards.ib_id AND thread_deleted != 1) AS thread_count,
+    (SELECT COUNT(post_id)
+    FROM threads
+    LEFT JOIN posts ON posts.thread_id = threads.thread_id
+    WHERE threads.ib_id=imageboards.ib_id AND post_deleted != 1) AS post_count,
+    (SELECT COUNT(image_id)
+    FROM threads
+    LEFT JOIN posts ON posts.thread_id = threads.thread_id
+    LEFT JOIN images ON images.post_id = posts.post_id
+    WHERE threads.ib_id=imageboards.ib_id AND post_deleted != 1) AS image_count
+    FROM imageboards WHERE ib_id = ?`, i.Ib).Scan(&response.Threads, &response.Posts, &response.Images)
+	if err != nil {
+		return
+	}
+
+	// get visitor stats
+	err = dbase.QueryRow(`SELECT COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits 
     FROM analytics 
     WHERE request_time BETWEEN (now() - interval 1 day) AND now() AND ib_id = ?`, i.Ib).Scan(&response.Visitors, &response.Hits)
 	if err != nil {
 		return
 	}
 
-	// get period stats for chart
+	// get visitor period stats for chart
 	ps1, err := dbase.Prepare(`SELECT (now() - interval ? hour) as time, 
     COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits 
     FROM analytics 
