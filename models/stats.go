@@ -12,8 +12,10 @@ type StatisticsModel struct {
 }
 
 type StatisticsType struct {
-	Labels []time.Time `json:"labels"`
-	Series []Series    `json:"series"`
+	Visitors `json:"visitors"`
+	Hits     `json:"hits"`
+	Labels   []time.Time `json:"labels"`
+	Series   []Series    `json:"series"`
 }
 
 type Series struct {
@@ -43,6 +45,15 @@ func (i *StatisticsModel) Get() (err error) {
 		return
 	}
 
+	// get total stats
+	err = dbase.QueryRow(`SELECT  COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits 
+    FROM analytics 
+    WHERE request_time BETWEEN (now() - interval 1 day) AND now() AND ib_id = ?`, i.Ib).Scan(&response.Visitors, &response.Hits)
+	if err != nil {
+		return
+	}
+
+	// get period stats for chart
 	ps1, err := dbase.Prepare(`SELECT (now() - interval ? hour) as time, 
     COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits 
     FROM analytics 
