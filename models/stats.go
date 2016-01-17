@@ -12,8 +12,8 @@ type StatisticsModel struct {
 }
 
 type StatisticsType struct {
-	Visitors `json:"visitors"`
-	Hits     `json:"hits"`
+	Visitors uint        `json:"visitors"`
+	Hits     uint        `json:"hits"`
 	Labels   []time.Time `json:"labels"`
 	Series   []Series    `json:"series"`
 }
