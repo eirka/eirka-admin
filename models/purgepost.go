@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 
 	local "github.com/eirka/eirka-admin/config"
-	u "github.com/eirka/eirka-admin/utils"
 )
 
 type PurgePostModel struct {
@@ -152,12 +152,14 @@ func (i *PurgePostModel) Delete() (err error) {
 		}
 
 		// delete from amazon s3
-		u.DeleteS3(fmt.Sprintf("src/%s", image.File))
+		s3 := amazon.New()
+
+		s3.Delete(fmt.Sprintf("src/%s", image.File))
 		if err != nil {
 			return
 		}
 
-		u.DeleteS3(fmt.Sprintf("thumb/%s", image.Thumb))
+		s3.Delete(fmt.Sprintf("thumb/%s", image.Thumb))
 		if err != nil {
 			return
 		}
