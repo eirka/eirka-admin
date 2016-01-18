@@ -21,18 +21,18 @@ type updateTagForm struct {
 	Type uint   `json:"type" binding:"required"`
 }
 
-// UpdateTagController will delete a tag
+// UpdateTagController will update a tags properties
 func UpdateTagController(c *gin.Context) {
 	var err error
 	var utf updateTagForm
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	err = c.Bind(&utf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.Bind")
 		return
 	}
 
@@ -47,7 +47,7 @@ func UpdateTagController(c *gin.Context) {
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("UpdateTagController.userdata.IsAuthorized")
 		return
 	}
 
@@ -55,7 +55,7 @@ func UpdateTagController(c *gin.Context) {
 	err = m.ValidateInput()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.ValidateInput")
 		return
 	}
 
@@ -63,11 +63,11 @@ func UpdateTagController(c *gin.Context) {
 	err = m.Status()
 	if err == e.ErrDuplicateTag {
 		c.JSON(http.StatusBadRequest, gin.H{"error_message": err.Error()})
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.Status")
 		return
 	}
 
@@ -75,7 +75,7 @@ func UpdateTagController(c *gin.Context) {
 	err = m.Update()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.Update")
 		return
 	}
 
@@ -90,7 +90,7 @@ func UpdateTagController(c *gin.Context) {
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.cache.Delete")
 		return
 	}
 
@@ -106,9 +106,10 @@ func UpdateTagController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("UpdateTagController.audit.Submit")
 	}
 
 	return

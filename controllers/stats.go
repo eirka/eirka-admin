@@ -16,13 +16,13 @@ func StatisticsController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(params[0]) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("StatisticsController.userdata.IsAuthorized")
 		return
 	}
 
@@ -35,11 +35,11 @@ func StatisticsController(c *gin.Context) {
 	err := m.Get()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("StatisticsController.Get")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("StatisticsController.Get")
 		return
 	}
 
@@ -47,7 +47,7 @@ func StatisticsController(c *gin.Context) {
 	output, err := json.Marshal(m.Result)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("StatisticsController.json.Marshal")
 		return
 	}
 

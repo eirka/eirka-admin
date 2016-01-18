@@ -19,7 +19,7 @@ func DeleteImageTagController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -32,18 +32,18 @@ func DeleteImageTagController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteImageTagController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteImageTagController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("DeleteImageTagController.userdata.IsAuthorized")
 		return
 	}
 
@@ -51,7 +51,7 @@ func DeleteImageTagController(c *gin.Context) {
 	err = m.Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteImageTagController.Delete")
 		return
 	}
 
@@ -66,7 +66,7 @@ func DeleteImageTagController(c *gin.Context) {
 	err = cache.Delete(tags_key, tag_key, image_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteImageTagController.cache.Delete")
 		return
 	}
 
@@ -82,9 +82,10 @@ func DeleteImageTagController(c *gin.Context) {
 		Info:   fmt.Sprintf("%d/%s", m.Image, m.Name),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteImageTagController.audit.Submit")
 	}
 
 	return

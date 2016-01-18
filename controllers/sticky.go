@@ -19,7 +19,7 @@ func StickyThreadController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -31,18 +31,18 @@ func StickyThreadController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("StickyThreadController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("StickyThreadController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("StickyThreadController.userdata.IsAuthorized")
 		return
 	}
 
@@ -50,7 +50,7 @@ func StickyThreadController(c *gin.Context) {
 	err = m.Toggle()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("StickyThreadController.Toggle")
 		return
 	}
 
@@ -65,12 +65,13 @@ func StickyThreadController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("StickyThreadController.cache.Delete")
 		return
 	}
 
 	var success_message string
 
+	// change the response message depending on the action
 	if m.Sticky {
 		success_message = audit.AuditUnstickyThread
 	} else {
@@ -89,9 +90,10 @@ func StickyThreadController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("StickyThreadController.audit.Submit")
 	}
 
 	return

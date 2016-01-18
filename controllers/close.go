@@ -13,13 +13,13 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// CloseThreadController will toggle a threads Close bool
+// CloseThreadController will toggle a threads close bool
 func CloseThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -31,18 +31,18 @@ func CloseThreadController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("CloseThreadController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("CloseThreadController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("CloseThreadController.userdata.IsAuthorized")
 		return
 	}
 
@@ -50,7 +50,7 @@ func CloseThreadController(c *gin.Context) {
 	err = m.Toggle()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("CloseThreadController.Toggle")
 		return
 	}
 
@@ -65,12 +65,13 @@ func CloseThreadController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("CloseThreadController.cache.Delete")
 		return
 	}
 
 	var success_message string
 
+	// change response message depending on bool state
 	if m.Closed {
 		success_message = audit.AuditOpenThread
 	} else {
@@ -89,9 +90,10 @@ func CloseThreadController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("CloseThreadController.audit.Submit")
 	}
 
 	return

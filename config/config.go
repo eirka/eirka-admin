@@ -52,44 +52,6 @@ type Config struct {
 	}
 }
 
-func Print() {
-
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n", "Local Config")
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Server")
-	fmt.Printf("%-20v%40v\n", "Type", "ADMIN")
-	fmt.Printf("%-20v%40v\n", "Address", Settings.Admin.Address)
-	fmt.Printf("%-20v%40v\n", "Port", Settings.Admin.Port)
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Directories")
-	fmt.Printf("%-20v%40v\n", "Images", Settings.Directories.ImageDir)
-	fmt.Printf("%-20v%40v\n", "Thumbnails", Settings.Directories.ThumbnailDir)
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "CORS")
-	fmt.Printf("%-20v%40v\n", "Domains", strings.Join(Settings.CORS.Sites, ", "))
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Database")
-	fmt.Printf("%-20v%40v\n", "User", Settings.Database.User)
-	fmt.Printf("%-20v%40v\n", "Password", Settings.Database.Password)
-	fmt.Printf("%-20v%40v\n", "Protocol", Settings.Database.Proto)
-	fmt.Printf("%-20v%40v\n", "Host", Settings.Database.Host)
-	fmt.Printf("%-20v%40v\n", "Database", Settings.Database.Database)
-	fmt.Printf("%-20v%40v\n", "Max Idle", Settings.Database.MaxIdle)
-	fmt.Printf("%-20v%40v\n", "Max Connections", Settings.Database.MaxConnections)
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Redis")
-	fmt.Printf("%-20v%40v\n", "Protocol", Settings.Redis.Protocol)
-	fmt.Printf("%-20v%40v\n", "Address", Settings.Redis.Address)
-	fmt.Printf("%-20v%40v\n", "Max Idle", Settings.Redis.MaxIdle)
-	fmt.Printf("%-20v%40v\n", "Max Connections", Settings.Redis.MaxConnections)
-	fmt.Println(strings.Repeat("*", 60))
-	fmt.Printf("%-20v\n\n", "Session")
-	fmt.Printf("%-20v%40v\n", "Secret", Settings.Session.Secret)
-	fmt.Println(strings.Repeat("*", 60))
-
-}
-
 func init() {
 	file, err := os.Open("/etc/pram/pram.conf")
 	if err != nil {

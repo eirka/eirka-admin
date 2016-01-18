@@ -13,13 +13,13 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// DeletePostController will delete a tag
+// DeletePostController will mark a post as deleted in the database
 func DeletePostController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -32,18 +32,18 @@ func DeletePostController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("DeletePostController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeletePostController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("DeletePostController.userdata.IsAuthorized")
 		return
 	}
 
@@ -51,7 +51,7 @@ func DeletePostController(c *gin.Context) {
 	err = m.Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeletePostController.Delete")
 		return
 	}
 
@@ -72,7 +72,7 @@ func DeletePostController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key, favorited_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeletePostController.cache.Delete")
 		return
 	}
 
@@ -88,9 +88,10 @@ func DeletePostController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s/%d", m.Name, m.Id),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("DeletePostController.audit.Submit")
 	}
 
 	return

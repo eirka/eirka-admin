@@ -13,13 +13,13 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// PurgeThreadController will delete a tag
+// PurgeThreadController will remove deleted files and rows
 func PurgeThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -31,18 +31,18 @@ func PurgeThreadController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("PurgeThreadController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PurgeThreadController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("PurgeThreadController.userdata.IsAuthorized")
 		return
 	}
 
@@ -50,7 +50,7 @@ func PurgeThreadController(c *gin.Context) {
 	err = m.Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PurgeThreadController.Delete")
 		return
 	}
 
@@ -71,7 +71,7 @@ func PurgeThreadController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key, favorited_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("PurgeThreadController.cache.Delete")
 		return
 	}
 
@@ -87,9 +87,10 @@ func PurgeThreadController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("PurgeThreadController.audit.Submit")
 	}
 
 	return

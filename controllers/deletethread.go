@@ -13,13 +13,13 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// DeleteThreadController will delete a tag
+// DeleteThreadController will mark a thread as deleted in the database
 func DeleteThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from session middleware
+	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
 	// Initialize model struct
@@ -31,18 +31,18 @@ func DeleteThreadController(c *gin.Context) {
 	err := m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteThreadController.Status")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteThreadController.Status")
 		return
 	}
 
 	// check if the user is authorized to perform this functions
 	if !userdata.IsAuthorized(m.Ib) {
 		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden)
+		c.Error(e.ErrForbidden).SetMeta("DeleteThreadController.userdata.IsAuthorized")
 		return
 	}
 
@@ -50,7 +50,7 @@ func DeleteThreadController(c *gin.Context) {
 	err = m.Delete()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteThreadController.Delete")
 		return
 	}
 
@@ -71,7 +71,7 @@ func DeleteThreadController(c *gin.Context) {
 	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key, favorited_key)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteThreadController.cache.Delete")
 		return
 	}
 
@@ -87,9 +87,10 @@ func DeleteThreadController(c *gin.Context) {
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 
+	// submit audit
 	err = audit.Submit()
 	if err != nil {
-		c.Error(err)
+		c.Error(err).SetMeta("DeleteThreadController.audit.Submit")
 	}
 
 	return
