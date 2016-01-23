@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+	"github.com/microcosm-cc/bluemonday"
+	"html"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -48,11 +50,17 @@ func (i *UpdateTagModel) ValidateInput() (err error) {
 		return e.ErrInvalidParam
 	}
 
+	// Initialize bluemonday
+	p := bluemonday.StrictPolicy()
+
+	// sanitize for html and xss
+	i.Tag = html.UnescapeString(p.Sanitize(i.Tag))
+
 	// Validate name input
 	tag := validate.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 	if tag.IsEmpty() {
 		return e.ErrNoTagName
-	} else if tag.MinLength() {
+	} else if tag.MinPartsLength() {
 		return e.ErrTagShort
 	} else if tag.MaxLength() {
 		return e.ErrTagLong
