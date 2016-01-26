@@ -16,9 +16,6 @@ func StatisticsController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
-	// get userdata from user middleware
-	userdata := c.MustGet("userdata").(user.User)
-
 	// Initialize model struct
 	m := &models.StatisticsModel{
 		Ib: params[0],
