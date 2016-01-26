@@ -24,8 +24,9 @@ func DeleteImageTagController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.DeleteImageTagModel{
-		Image: params[0],
-		Tag:   params[1],
+		Ib:    params[0],
+		Image: params[1],
+		Tag:   params[2],
 	}
 
 	// Check the record id and get further info

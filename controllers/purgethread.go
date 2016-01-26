@@ -24,7 +24,8 @@ func PurgeThreadController(c *gin.Context) {
 
 	// Initialize model struct
 	m := &models.PurgeThreadModel{
-		Id: params[0],
+		Ib: params[0],
+		Id: params[1],
 	}
 
 	// Check the record id and get further info
