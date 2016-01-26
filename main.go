@@ -78,7 +78,7 @@ func main() {
 
 	admin.GET("/statistics/:ib", c.StatisticsController)
 	admin.DELETE("/tag/:ib/:id", c.DeleteTagController)
-	admin.POST("/tag:ib/", c.UpdateTagController)
+	admin.POST("/tag/:ib/", c.UpdateTagController)
 	admin.DELETE("/imagetag/:ib/:image/:tag", c.DeleteImageTagController)
 	admin.DELETE("/thread/:ib/:id", c.DeleteThreadController)
 	admin.DELETE("/post/:ib/:thread/:id", c.DeletePostController)
