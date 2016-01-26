@@ -24,7 +24,7 @@ func PurgePostController(c *gin.Context) {
 
 	if !c.MustGet("protected").(bool) {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("PurgePostController.protected")
+		c.Error(e.ErrInternalError).SetMeta("PurgePostController.protected")
 		return
 	}
 
