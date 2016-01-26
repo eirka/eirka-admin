@@ -29,6 +29,12 @@ func UpdateTagController(c *gin.Context) {
 	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
+	if !c.MustGet("protected").(bool) {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("UpdateTagController.protected")
+		return
+	}
+
 	err = c.Bind(&utf)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInvalidParam))

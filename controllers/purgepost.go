@@ -22,6 +22,12 @@ func PurgePostController(c *gin.Context) {
 	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
+	if !c.MustGet("protected").(bool) {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("PurgePostController.protected")
+		return
+	}
+
 	// Initialize model struct
 	m := &models.PurgePostModel{
 		Ib:     params[0],

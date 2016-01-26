@@ -15,6 +15,12 @@ func StatisticsController(c *gin.Context) {
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
+	if !c.MustGet("protected").(bool) {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("StatisticsController.protected")
+		return
+	}
+
 	// Initialize model struct
 	m := &models.StatisticsModel{
 		Ib: params[0],
