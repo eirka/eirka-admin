@@ -39,13 +39,6 @@ func StickyThreadController(c *gin.Context) {
 		return
 	}
 
-	// check if the user is authorized to perform this functions
-	if !userdata.IsAuthorized(m.Ib) {
-		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden).SetMeta("StickyThreadController.userdata.IsAuthorized")
-		return
-	}
-
 	// toggle status
 	err = m.Toggle()
 	if err != nil {

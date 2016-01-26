@@ -74,15 +74,16 @@ func main() {
 
 	admin.Use(validate.ValidateParams())
 	admin.Use(user.Auth(true))
+	admin.Use(user.Protect())
 
 	admin.GET("/statistics/:ib", c.StatisticsController)
-	admin.DELETE("/tag/:id", c.DeleteTagController)
-	admin.POST("/tag", c.UpdateTagController)
-	admin.DELETE("/imagetag/:image/:tag", c.DeleteImageTagController)
-	admin.DELETE("/thread/:id", c.DeleteThreadController)
-	admin.DELETE("/post/:thread/:id", c.DeletePostController)
-	admin.POST("/sticky/:thread", c.StickyThreadController)
-	admin.POST("/close/:thread", c.CloseThreadController)
+	admin.DELETE("/tag/:ib/:id", c.DeleteTagController)
+	admin.POST("/tag:ib/", c.UpdateTagController)
+	admin.DELETE("/imagetag/:ib/:image/:tag", c.DeleteImageTagController)
+	admin.DELETE("/thread/:ib/:id", c.DeleteThreadController)
+	admin.DELETE("/post/:ib/:thread/:id", c.DeletePostController)
+	admin.POST("/sticky/:ib/:thread", c.StickyThreadController)
+	admin.POST("/close/:ib/:thread", c.CloseThreadController)
 
 	//admin.DELETE("/thread/:id", c.PurgeThreadController)
 	//admin.DELETE("/post/:thread/:id", c.PurgePostController)

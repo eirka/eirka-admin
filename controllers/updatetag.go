@@ -44,13 +44,6 @@ func UpdateTagController(c *gin.Context) {
 		TagType: utf.Type,
 	}
 
-	// check if the user is authorized to perform this functions
-	if !userdata.IsAuthorized(m.Ib) {
-		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden).SetMeta("UpdateTagController.userdata.IsAuthorized")
-		return
-	}
-
 	// Validate input parameters
 	err = m.ValidateInput()
 	if err != nil {

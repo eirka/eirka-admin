@@ -39,13 +39,6 @@ func DeleteThreadController(c *gin.Context) {
 		return
 	}
 
-	// check if the user is authorized to perform this functions
-	if !userdata.IsAuthorized(m.Ib) {
-		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden).SetMeta("DeleteThreadController.userdata.IsAuthorized")
-		return
-	}
-
 	// Delete data
 	err = m.Delete()
 	if err != nil {

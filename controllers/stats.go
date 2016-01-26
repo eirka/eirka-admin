@@ -19,13 +19,6 @@ func StatisticsController(c *gin.Context) {
 	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
 
-	// check if the user is authorized to perform this functions
-	if !userdata.IsAuthorized(params[0]) {
-		c.JSON(e.ErrorMessage(e.ErrForbidden))
-		c.Error(e.ErrForbidden).SetMeta("StatisticsController.userdata.IsAuthorized")
-		return
-	}
-
 	// Initialize model struct
 	m := &models.StatisticsModel{
 		Ib: params[0],
