@@ -43,7 +43,7 @@ func (i *DeleteTagModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT ib_id, tag_name FROM tags WHERE tag_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name)
+	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -68,13 +68,13 @@ func (i *DeleteTagModel) Delete() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("DELETE FROM tags WHERE tag_id= ? LIMIT 1")
+	ps1, err := dbase.Prepare("DELETE FROM tags WHERE tag_id= ? AND ib_id = ? LIMIT 1")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Id)
+	_, err = ps1.Exec(i.Id, i.Ib)
 	if err != nil {
 		return
 	}
