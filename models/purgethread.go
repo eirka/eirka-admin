@@ -55,7 +55,7 @@ func (i *PurgeThreadModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT ib_id, thread_title FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name)
+	err = dbase.QueryRow("SELECT thread_title FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -86,7 +86,7 @@ func (i *PurgeThreadModel) Delete() (err error) {
 	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail FROM images
     INNER JOIN posts on images.post_id = posts.post_id
     INNER JOIN threads on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ?`, i.Id)
+    WHERE threads.thread_id = ? AND ib_id = ?`, i.Id, i.Ib)
 	if err != nil {
 		return
 	}
@@ -108,13 +108,13 @@ func (i *PurgeThreadModel) Delete() (err error) {
 	}
 
 	// delete thread from database
-	ps1, err := dbase.Prepare("DELETE FROM threads WHERE thread_id= ? LIMIT 1")
+	ps1, err := dbase.Prepare("DELETE FROM threads WHERE thread_id= ? AND ib_id = ? LIMIT 1")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Id)
+	_, err = ps1.Exec(i.Id, i.Ib)
 	if err != nil {
 		return
 	}
