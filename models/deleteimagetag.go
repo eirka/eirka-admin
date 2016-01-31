@@ -73,7 +73,9 @@ func (i *DeleteImageTagModel) Delete() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("DELETE FROM tagmap INNER JOIN tags ON tagmap.tag_id = tags.tag_id WHERE image_id = ? AND tagmap.tag_id = ? AND ib_id = ? LIMIT 1")
+	ps1, err := dbase.Prepare(`DELETE tm FROM tagmap AS tm
+    INNER JOIN tags ON tm.tag_id = tags.tag_id 
+    WHERE image_id = ? AND tm.tag_id = ? AND ib_id = ?`)
 	if err != nil {
 		return
 	}
