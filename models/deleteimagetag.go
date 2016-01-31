@@ -48,7 +48,7 @@ func (i *DeleteImageTagModel) Status() (err error) {
 	}
 
 	// Check if the tag is there
-	err = dbase.QueryRow("SELECT ib_id, tag_name FROM tags WHERE tag_id = ? LIMIT 1", i.Tag).Scan(&i.Ib, &i.Name)
+	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", i.Tag, i.Ib).Scan(&i.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -73,13 +73,13 @@ func (i *DeleteImageTagModel) Delete() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("DELETE FROM tagmap WHERE image_id = ? AND tag_id = ? LIMIT 1")
+	ps1, err := dbase.Prepare("DELETE FROM tagmap WHERE image_id = ? AND tag_id = ? AND ib_id = ? LIMIT 1")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Image, i.Tag)
+	_, err = ps1.Exec(i.Image, i.Tag, i.Ib)
 	if err != nil {
 		return
 	}
