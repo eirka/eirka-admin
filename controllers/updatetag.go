@@ -16,7 +16,6 @@ import (
 // update tag input
 type updateTagForm struct {
 	Id   uint   `json:"id" binding:"required"`
-	Ib   uint   `json:"ib" binding:"required"`
 	Tag  string `json:"name" binding:"required"`
 	Type uint   `json:"type" binding:"required"`
 }
@@ -25,6 +24,9 @@ type updateTagForm struct {
 func UpdateTagController(c *gin.Context) {
 	var err error
 	var utf updateTagForm
+
+	// Get parameters from validate middleware
+	params := c.MustGet("params").([]uint)
 
 	// get userdata from user middleware
 	userdata := c.MustGet("userdata").(user.User)
@@ -44,8 +46,8 @@ func UpdateTagController(c *gin.Context) {
 
 	// Set parameters to UpdateTagModel
 	m := models.UpdateTagModel{
+		Ib:      params[0],
 		Id:      utf.Id,
-		Ib:      utf.Ib,
 		Tag:     utf.Tag,
 		TagType: utf.Type,
 	}

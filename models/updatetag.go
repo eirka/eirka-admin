@@ -109,13 +109,13 @@ func (i *UpdateTagModel) Update() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("UPDATE tags SET tag_name= ?, tagtype_id= ? WHERE tag_id = ?")
+	ps1, err := dbase.Prepare("UPDATE tags SET tag_name= ?, tagtype_id= ? WHERE tag_id = ? AND ib_id = ?")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Tag, i.TagType, i.Id)
+	_, err = ps1.Exec(i.Tag, i.TagType, i.Id, i.Ib)
 	if err != nil {
 		return
 	}
