@@ -44,7 +44,7 @@ func (i *DeleteThreadModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT ib_id, thread_title, thread_deleted FROM threads WHERE thread_id = ? LIMIT 1", i.Id).Scan(&i.Ib, &i.Name, &i.Deleted)
+	err = dbase.QueryRow("SELECT thread_title, thread_deleted FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name, &i.Deleted)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -69,13 +69,13 @@ func (i *DeleteThreadModel) Delete() (err error) {
 		return
 	}
 
-	ps1, err := dbase.Prepare("UPDATE threads SET thread_deleted = ? WHERE thread_id = ?")
+	ps1, err := dbase.Prepare("UPDATE threads SET thread_deleted = ? WHERE thread_id = ? AND ib_id = ?")
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(!i.Deleted, i.Id)
+	_, err = ps1.Exec(!i.Deleted, i.Id, i.Ib)
 	if err != nil {
 		return
 	}
