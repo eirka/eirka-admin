@@ -50,7 +50,7 @@ func (i *DeletePostModel) Status() (err error) {
 	}
 
 	// get thread ib and title
-	err = dbase.QueryRow(`SELECT ib_id, thread_title, post_deleted FROM threads 
+	err = dbase.QueryRow(`SELECT thread_title, post_deleted FROM threads 
 	INNER JOIN posts on threads.thread_id = posts.thread_id
 	WHERE threads.thread_id = ? AND ib_id = ? LIMIT 1`, i.Thread, i.Ib).Scan(&i.Name, &i.Deleted)
 	if err == sql.ErrNoRows {
