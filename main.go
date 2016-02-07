@@ -23,7 +23,6 @@ func init() {
 
 	// Database connection settings
 	dbase := db.Database{
-
 		User:           local.Settings.Database.User,
 		Password:       local.Settings.Database.Password,
 		Proto:          local.Settings.Database.Proto,
