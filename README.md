@@ -1,2 +1,2 @@
-# pram-admin
-admin functions for pram
+# eirka-admin
+admin functions for an eirka board
