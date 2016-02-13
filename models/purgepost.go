@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/eirka/eirka-libs/amazon"
 	"github.com/eirka/eirka-libs/db"
