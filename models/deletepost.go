@@ -91,28 +91,6 @@ func (i *DeletePostModel) Delete() (err error) {
 		return
 	}
 
-	var lasttime *time.Time
-
-	// get last post time
-	err = tx.QueryRow(`SELECT post_time FROM posts 
-	WHERE thread_id = ? AND post_deleted != 1
-	ORDER BY post_id DESC LIMIT 1`, i.Thread).Scan(&lasttime)
-	if err != nil {
-		return
-	}
-
-	// update last post time in thread
-	ps2, err := tx.Prepare("UPDATE threads SET thread_last_post= ? WHERE thread_id= ? AND ib_id = ?")
-	if err != nil {
-		return
-	}
-	defer ps2.Close()
-
-	_, err = ps2.Exec(lasttime, i.Thread, i.Ib)
-	if err != nil {
-		return
-	}
-
 	// Commit transaction
 	err = tx.Commit()
 	if err != nil {
