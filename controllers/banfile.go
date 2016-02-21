@@ -10,7 +10,6 @@ import (
 	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-admin/models"
-	u "github.com/eirka/eirka-admin/utils"
 )
 
 // ban file input
@@ -21,7 +20,7 @@ type banFileForm struct {
 // BanFileController will ban an image file hash
 func BanFileController(c *gin.Context) {
 	var err error
-	var bff BanFileForm
+	var bff banFileForm
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
