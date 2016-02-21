@@ -12,12 +12,14 @@ import (
 )
 
 type CloudFlareBanIpPayload struct {
-	Mode          string `json:"mode"`
-	Configuration struct {
-		Target string `json:"target"`
-		Value  string `json:"value"`
-	} `json:"configuration"`
-	Notes string `json:"notes"`
+	Mode          string                       `json:"mode"`
+	Notes         string                       `json:"notes"`
+	Configuration CloudFlareBanIpConfiguration `json:"configuration"`
+}
+
+type CloudFlareBanIpConfiguration struct {
+	Target string `json:"target"`
+	Value  string `json:"value"`
 }
 
 func CloudFlareBanIp(ip, reason string) (err error) {
@@ -29,7 +31,7 @@ func CloudFlareBanIp(ip, reason string) (err error) {
 	// block ip request json
 	data := CloudFlareBanIpPayload{
 		Mode: "block",
-		Configuration: Configuration{
+		Configuration: CloudFlareBanIpConfiguration{
 			Target: "ip",
 			Value:  ip,
 		},
