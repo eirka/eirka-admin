@@ -78,7 +78,7 @@ func main() {
 
 	admin.GET("/statistics/:ib", c.StatisticsController)
 	admin.GET("/log/board/:ib/:page", c.BoardLogController)
-	//admin.GET("/log/mod/:ib/:page", c.ModLogController)
+	admin.GET("/log/mod/:ib/:page", c.ModLogController)
 
 	admin.DELETE("/tag/:ib/:id", c.DeleteTagController)
 	admin.DELETE("/imagetag/:ib/:image/:tag", c.DeleteImageTagController)
