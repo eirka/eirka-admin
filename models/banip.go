@@ -73,7 +73,7 @@ func (i *BanIpModel) Post() (err error) {
 		return
 	}
 
-	_, err = dbase.Exec("INSERT INTO banned_ips (user_id,ib_id,ban_ip,ban_reason) VALUES (?,?,?,?)",
+	_, err = dbase.Exec("INSERT IGNORE INTO banned_ips (user_id,ib_id,ban_ip,ban_reason) VALUES (?,?,?,?)",
 		i.User, i.Ib, i.Ip, i.Reason)
 	if err != nil {
 		return
