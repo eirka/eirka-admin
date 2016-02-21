@@ -85,6 +85,7 @@ func main() {
 	admin.POST("/sticky/:ib/:thread", c.StickyThreadController)
 	admin.POST("/close/:ib/:thread", c.CloseThreadController)
 	admin.POST("/banip/:ib/:thread/:post", c.BanIpController)
+	admin.POST("/banfile/:ib/:thread/:post", c.BanFileController)
 
 	//admin.DELETE("/thread/:id", c.PurgeThreadController)
 	//admin.DELETE("/post/:thread/:id", c.PurgePostController)
