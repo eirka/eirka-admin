@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/eirka/eirka-libs/config"
 )
@@ -29,7 +29,7 @@ func CloudFlareBanIp(ip, reason string) (err error) {
 	// block ip request json
 	data := CloudFlareBanIpPayload{
 		Mode: "block",
-		Configuration{
+		Configuration: CloudFlareBanIpPayload.Configuration{
 			Target: "ip",
 			Value:  ip,
 		},
