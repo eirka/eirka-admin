@@ -102,6 +102,7 @@ func UpdateTagController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.ModLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditUpdateTag,
 		Info:   fmt.Sprintf("%s", m.Tag),

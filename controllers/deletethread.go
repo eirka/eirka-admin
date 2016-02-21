@@ -82,6 +82,7 @@ func DeleteThreadController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.ModLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditDeleteThread,
 		Info:   fmt.Sprintf("%s", m.Name),

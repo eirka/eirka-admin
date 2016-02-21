@@ -76,6 +76,7 @@ func DeleteTagController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.ModLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditDeleteTag,
 		Info:   fmt.Sprintf("%s", m.Name),

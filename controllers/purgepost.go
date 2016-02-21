@@ -83,6 +83,7 @@ func PurgePostController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.ModLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditPurgePost,
 		Info:   fmt.Sprintf("%s/%d", m.Name, m.Id),

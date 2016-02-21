@@ -84,10 +84,10 @@ func main() {
 	admin.DELETE("/post/:ib/:thread/:id", c.DeletePostController)
 	admin.POST("/sticky/:ib/:thread", c.StickyThreadController)
 	admin.POST("/close/:ib/:thread", c.CloseThreadController)
+	admin.POST("/banip/:ib", c.BanIpController)
 
 	//admin.DELETE("/thread/:id", c.PurgeThreadController)
 	//admin.DELETE("/post/:thread/:id", c.PurgePostController)
-	//admin.POST("/ban/:ip", c.BanIpController)
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{

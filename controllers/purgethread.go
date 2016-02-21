@@ -82,6 +82,7 @@ func PurgeThreadController(c *gin.Context) {
 	audit := audit.Audit{
 		User:   userdata.Id,
 		Ib:     m.Ib,
+		Type:   audit.ModLog,
 		Ip:     c.ClientIP(),
 		Action: audit.AuditPurgeThread,
 		Info:   fmt.Sprintf("%s", m.Name),
