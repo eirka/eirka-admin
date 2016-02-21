@@ -29,7 +29,7 @@ func CloudFlareBanIp(ip, reason string) (err error) {
 	// block ip request json
 	data := CloudFlareBanIpPayload{
 		Mode: "block",
-		Configuration: CloudFlareBanIpPayload.Configuration{
+		Configuration: Configuration{
 			Target: "ip",
 			Value:  ip,
 		},
