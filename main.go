@@ -77,15 +77,19 @@ func main() {
 	admin.Use(user.Protect())
 
 	admin.GET("/statistics/:ib", c.StatisticsController)
+	admin.GET("/log/board/:ib/:page", c.BoardLogController)
+	//admin.GET("/log/mod/:ib/:page", c.ModLogController)
+
 	admin.DELETE("/tag/:ib/:id", c.DeleteTagController)
-	admin.POST("/tag/:ib", c.UpdateTagController)
 	admin.DELETE("/imagetag/:ib/:image/:tag", c.DeleteImageTagController)
 	admin.DELETE("/thread/:ib/:id", c.DeleteThreadController)
 	admin.DELETE("/post/:ib/:thread/:id", c.DeletePostController)
+
+	admin.POST("/tag/:ib", c.UpdateTagController)
 	admin.POST("/sticky/:ib/:thread", c.StickyThreadController)
 	admin.POST("/close/:ib/:thread", c.CloseThreadController)
-	admin.POST("/banip/:ib/:thread/:post", c.BanIpController)
-	admin.POST("/banfile/:ib/:thread/:post", c.BanFileController)
+	admin.POST("/ban/ip/:ib/:thread/:post", c.BanIpController)
+	admin.POST("/ban/file/:ib/:thread/:post", c.BanFileController)
 
 	//admin.DELETE("/thread/:id", c.PurgeThreadController)
 	//admin.DELETE("/post/:thread/:id", c.PurgePostController)

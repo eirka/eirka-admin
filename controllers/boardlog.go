@@ -9,32 +9,33 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// StatisticsController will get the visitor stats for a board
-func StatisticsController(c *gin.Context) {
+// BoardLogController will get the the board audit log
+func BoardLogController(c *gin.Context) {
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
 
 	if !c.MustGet("protected").(bool) {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(e.ErrInternalError).SetMeta("StatisticsController.protected")
+		c.Error(e.ErrInternalError).SetMeta("BoardLogController.protected")
 		return
 	}
 
 	// Initialize model struct
-	m := &models.StatisticsModel{
-		Ib: params[0],
+	m := &models.BoardLogModel{
+		Ib:   params[0],
+		Page: params[1],
 	}
 
 	// Get the model which outputs JSON
 	err := m.Get()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
-		c.Error(err).SetMeta("StatisticsController.Get")
+		c.Error(err).SetMeta("BoardLogController.Get")
 		return
 	} else if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("StatisticsController.Get")
+		c.Error(err).SetMeta("BoardLogController.Get")
 		return
 	}
 
@@ -42,7 +43,7 @@ func StatisticsController(c *gin.Context) {
 	output, err := json.Marshal(m.Result)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("StatisticsController.json.Marshal")
+		c.Error(err).SetMeta("BoardLogController.json.Marshal")
 		return
 	}
 
