@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 
 	"github.com/eirka/eirka-libs/db"
@@ -8,9 +9,11 @@ import (
 
 type BanIpModel struct {
 	Ib     uint
+	Thread uint
+	Id     uint
 	User   uint
-	Ip     string
 	Reason string
+	Ip     string
 }
 
 // check struct validity
@@ -29,6 +32,29 @@ func (c *BanIpModel) IsValid() bool {
 	}
 
 	return true
+
+}
+
+// Status will return info
+func (i *BanIpModel) Status() (err error) {
+
+	// Get Database handle
+	dbase, err := db.GetDb()
+	if err != nil {
+		return
+	}
+
+	// get thread ib and title
+	err = dbase.QueryRow(`SELECT post_ip FROM threads
+    INNER JOIN posts ON threads.thread_id = posts.thread_id
+    WHERE ib_id = ? AND threads.thread_id = ? AND post_num = ? LIMIT 1`, i.Ib, i.Thread, i.Id).Scan(&i.Ip)
+	if err == sql.ErrNoRows {
+		return e.ErrNotFound
+	} else if err != nil {
+		return
+	}
+
+	return
 
 }
 

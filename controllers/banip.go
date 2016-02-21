@@ -15,7 +15,6 @@ import (
 
 // ban Ip input
 type banIpForm struct {
-	Ip     string `json:"ip" binding:"required"`
 	Reason string `json:"reason" binding:"required"`
 }
 
@@ -46,12 +45,25 @@ func BanIpController(c *gin.Context) {
 	// Initialize model struct
 	m := &models.BanIpModel{
 		Ib:     params[0],
+		Thread: params[1],
+		Id:     params[2],
 		User:   userdata.Id,
-		Ip:     bif.Ip,
 		Reason: bif.Reason,
 	}
 
-	// toggle status
+	// Check the record id and get further info
+	err := m.Status()
+	if err == e.ErrNotFound {
+		c.JSON(e.ErrorMessage(e.ErrNotFound))
+		c.Error(err).SetMeta("BanIpController.Status")
+		return
+	} else if err != nil {
+		c.JSON(e.ErrorMessage(e.ErrInternalError))
+		c.Error(err).SetMeta("BanIpController.Status")
+		return
+	}
+
+	// add ban to database
 	err = m.Post()
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
