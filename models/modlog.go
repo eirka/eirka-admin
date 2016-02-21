@@ -60,10 +60,13 @@ func (i *ModLogModel) Get() (err error) {
 	}
 
 	// get image counts from tagmap
-	rows, err := dbase.Query(`SELECT audit.user_id,user_name,audit_time,audit_action,audit_info FROM audit
+	rows, err := dbase.Query(`SELECT audit.user_id,user_name,
+    COALESCE((SELECT MAX(role_id) FROM user_ib_role_map WHERE user_ib_role_map.user_id = users.user_id AND ib_id = ?),user_role_map.role_id) as role,
+    audit_time,audit_action,audit_info FROM audit
     INNER JOIN users ON audit.user_id = users.user_id
+    INNER JOIN user_role_map ON (user_role_map.user_id = users.user_id)
     WHERE ib_id = ? AND audit_type = 2
-    ORDER BY audit_id DESC LIMIT ?,?`, i.Ib, paged.Limit, paged.PerPage)
+    ORDER BY audit_id DESC LIMIT ?,?`, i.Ib, i.Ib, paged.Limit, paged.PerPage)
 	if err != nil {
 		return
 	}
@@ -72,7 +75,7 @@ func (i *ModLogModel) Get() (err error) {
 		// Initialize posts struct
 		entry := Log{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&entry.Uid, &entry.Name, &entry.Time, &entry.Action, &entry.Meta)
+		err := rows.Scan(&entry.Uid, &entry.Name, &entry.Group, &entry.Time, &entry.Action, &entry.Meta)
 		if err != nil {
 			return err
 		}
