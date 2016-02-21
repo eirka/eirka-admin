@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 )
 
 type BanIpModel struct {
