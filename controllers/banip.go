@@ -52,7 +52,7 @@ func BanIpController(c *gin.Context) {
 	}
 
 	// Check the record id and get further info
-	err := m.Status()
+	err = m.Status()
 	if err == e.ErrNotFound {
 		c.JSON(e.ErrorMessage(e.ErrNotFound))
 		c.Error(err).SetMeta("BanIpController.Status")
