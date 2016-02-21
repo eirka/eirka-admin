@@ -7,7 +7,6 @@ import (
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/user"
 
 	"github.com/eirka/eirka-admin/models"
@@ -48,8 +47,8 @@ func BanIpController(c *gin.Context) {
 	m := &models.BanIpModel{
 		Ib:     params[0],
 		User:   userdata.Id,
-		Ip:     utf.Id,
-		Reason: utf.Tag,
+		Ip:     bif.Ip,
+		Reason: bif.Reason,
 	}
 
 	// toggle status
