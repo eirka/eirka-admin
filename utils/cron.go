@@ -17,7 +17,7 @@ func init() {
 }
 
 // Will prune the analytics table
-func PruneAnalytics() (err error) {
+func PruneAnalytics() {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
