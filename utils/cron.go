@@ -11,9 +11,10 @@ func init() {
 	c := cron.New()
 
 	// prune old analytics
-	c.AddFunc("@midnight", PruneAnalytics())
+	c.AddFunc("@midnight", PruneAnalytics)
 
 	c.Start()
+
 }
 
 // Will prune the analytics table
