@@ -90,6 +90,7 @@ func main() {
 	admin.POST("/close/:ib/:thread", c.CloseThreadController)
 	admin.POST("/ban/ip/:ib/:thread/:post", c.BanIpController)
 	admin.POST("/ban/file/:ib/:thread/:post", c.BanFileController)
+	admin.POST("/user/resetpassword/:ib", c.ResetPasswordController)
 
 	//admin.DELETE("/thread/:id", c.PurgeThreadController)
 	//admin.DELETE("/post/:thread/:id", c.PurgePostController)
