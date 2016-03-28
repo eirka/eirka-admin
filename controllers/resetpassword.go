@@ -8,8 +8,6 @@ import (
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/user"
-
-	u "github.com/eirka/eirka-admin/utils"
 )
 
 // reset password input
@@ -20,7 +18,7 @@ type resetPasswordForm struct {
 // ResetPasswordController will reset an ip
 func ResetPasswordController(c *gin.Context) {
 	var err error
-	var rpf ResetPasswordForm
+	var rpf resetPasswordForm
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
