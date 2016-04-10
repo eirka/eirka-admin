@@ -80,7 +80,7 @@ func CloseThreadController(c *gin.Context) {
 	}
 
 	// response message
-	c.JSON(http.StatusOK, gin.H{"successMessage": successMessage})
+	c.JSON(http.StatusOK, gin.H{"success_message": successMessage})
 
 	// audit log
 	audit := audit.Audit{
