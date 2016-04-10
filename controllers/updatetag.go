@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -15,7 +16,7 @@ import (
 
 // update tag input
 type updateTagForm struct {
-	Id   uint   `json:"id" binding:"required"`
+	ID   uint   `json:"id" binding:"required"`
 	Tag  string `json:"name" binding:"required"`
 	Type uint   `json:"type" binding:"required"`
 }
@@ -47,7 +48,7 @@ func UpdateTagController(c *gin.Context) {
 	// Set parameters to UpdateTagModel
 	m := models.UpdateTagModel{
 		Ib:      params[0],
-		Id:      utf.Id,
+		ID:      utf.ID,
 		Tag:     utf.Tag,
 		TagType: utf.Type,
 	}
@@ -81,14 +82,14 @@ func UpdateTagController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
-	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
-	tag_key := fmt.Sprintf("%s:%d:%d", "tag", m.Ib, m.Id)
-	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
+	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
+	tagKey := fmt.Sprintf("%s:%d:%d", "tag", m.Ib, m.ID)
+	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = cache.Delete(tags_key, tag_key, image_key)
+	err = cache.Delete(tagsKey, tagKey, imageKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("UpdateTagController.cache.Delete")
@@ -100,10 +101,10 @@ func UpdateTagController(c *gin.Context) {
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditUpdateTag,
 		Info:   fmt.Sprintf("%s", m.Tag),
 	}

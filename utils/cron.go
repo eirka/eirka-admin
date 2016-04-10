@@ -17,7 +17,7 @@ func init() {
 
 }
 
-// Will prune the analytics table
+// PruneAnalytics will remove old entries from the analytics table
 func PruneAnalytics() {
 
 	// Get Database handle

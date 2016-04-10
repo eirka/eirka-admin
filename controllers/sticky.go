@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -13,7 +14,7 @@ import (
 	"github.com/eirka/eirka-admin/models"
 )
 
-// StickyController will toggle a threads sticky bool
+// StickyThreadController will toggle a threads sticky bool
 func StickyThreadController(c *gin.Context) {
 
 	// Get parameters from validate middleware
@@ -31,7 +32,7 @@ func StickyThreadController(c *gin.Context) {
 	// Initialize model struct
 	m := &models.StickyModel{
 		Ib: params[0],
-		Id: params[1],
+		ID: params[1],
 	}
 
 	// Check the record id and get further info
@@ -55,39 +56,39 @@ func StickyThreadController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
-	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
-	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
-	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Id)
+	indexKey := fmt.Sprintf("%s:%d", "index", m.Ib)
+	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
+	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.ID)
 
-	err = cache.Delete(index_key, directory_key, thread_key)
+	err = cache.Delete(indexKey, directoryKey, threadKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("StickyThreadController.cache.Delete")
 		return
 	}
 
-	var success_message string
+	var successMessage string
 
 	// change the response message depending on the action
 	if m.Sticky {
-		success_message = audit.AuditUnstickyThread
+		successMessage = audit.AuditUnstickyThread
 	} else {
-		success_message = audit.AuditStickyThread
+		successMessage = audit.AuditStickyThread
 	}
 
 	// response message
-	c.JSON(http.StatusOK, gin.H{"success_message": success_message})
+	c.JSON(http.StatusOK, gin.H{"success_message": successMessage})
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
-		Action: success_message,
+		IP:     c.ClientIP(),
+		Action: successMessage,
 		Info:   fmt.Sprintf("%s", m.Name),
 	}
 

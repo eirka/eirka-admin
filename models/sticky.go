@@ -8,25 +8,26 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// StickyModel holds request input
 type StickyModel struct {
-	Id     uint
+	ID     uint
 	Name   string
 	Ib     uint
 	Sticky bool
 }
 
-// check struct validity
-func (s *StickyModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *StickyModel) IsValid() bool {
 
-	if s.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if s.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if s.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
@@ -35,7 +36,7 @@ func (s *StickyModel) IsValid() bool {
 }
 
 // Status will return info
-func (i *StickyModel) Status() (err error) {
+func (m *StickyModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -44,7 +45,7 @@ func (i *StickyModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT thread_title, thread_sticky FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name, &i.Sticky)
+	err = dbase.QueryRow("SELECT thread_title, thread_sticky FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", m.ID, m.Ib).Scan(&m.Name, &m.Sticky)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -56,10 +57,10 @@ func (i *StickyModel) Status() (err error) {
 }
 
 // Toggle will change the thread status
-func (i *StickyModel) Toggle() (err error) {
+func (m *StickyModel) Toggle() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("StickyModel is not valid")
 	}
 
@@ -75,7 +76,7 @@ func (i *StickyModel) Toggle() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(!i.Sticky, i.Id, i.Ib)
+	_, err = ps1.Exec(!m.Sticky, m.ID, m.Ib)
 	if err != nil {
 		return
 	}

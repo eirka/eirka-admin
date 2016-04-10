@@ -8,6 +8,7 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// DeleteImageTagModel holds request input
 type DeleteImageTagModel struct {
 	Image uint
 	Tag   uint
@@ -15,22 +16,22 @@ type DeleteImageTagModel struct {
 	Ib    uint
 }
 
-// check struct validity
-func (d *DeleteImageTagModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *DeleteImageTagModel) IsValid() bool {
 
-	if d.Image == 0 {
+	if m.Image == 0 {
 		return false
 	}
 
-	if d.Tag == 0 {
+	if m.Tag == 0 {
 		return false
 	}
 
-	if d.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if d.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
@@ -39,7 +40,7 @@ func (d *DeleteImageTagModel) IsValid() bool {
 }
 
 // Status will return info
-func (i *DeleteImageTagModel) Status() (err error) {
+func (m *DeleteImageTagModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -48,7 +49,7 @@ func (i *DeleteImageTagModel) Status() (err error) {
 	}
 
 	// Check if the tag is there
-	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", i.Tag, i.Ib).Scan(&i.Name)
+	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", m.Tag, m.Ib).Scan(&m.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -60,10 +61,10 @@ func (i *DeleteImageTagModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *DeleteImageTagModel) Delete() (err error) {
+func (m *DeleteImageTagModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("DeleteImageTagModel is not valid")
 	}
 
@@ -74,14 +75,14 @@ func (i *DeleteImageTagModel) Delete() (err error) {
 	}
 
 	ps1, err := dbase.Prepare(`DELETE tm FROM tagmap AS tm
-    INNER JOIN tags ON tm.tag_id = tags.tag_id 
+    INNER JOIN tags ON tm.tag_id = tags.tag_id
     WHERE image_id = ? AND tm.tag_id = ? AND ib_id = ?`)
 	if err != nil {
 		return
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Image, i.Tag, i.Ib)
+	_, err = ps1.Exec(m.Image, m.Tag, m.Ib)
 	if err != nil {
 		return
 	}

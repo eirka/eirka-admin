@@ -8,24 +8,25 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// DeleteTagModel holds request input
 type DeleteTagModel struct {
-	Id   uint
+	ID   uint
 	Name string
 	Ib   uint
 }
 
-// check struct validity
-func (d *DeleteTagModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *DeleteTagModel) IsValid() bool {
 
-	if d.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if d.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if d.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
@@ -34,7 +35,7 @@ func (d *DeleteTagModel) IsValid() bool {
 }
 
 // Status will return info
-func (i *DeleteTagModel) Status() (err error) {
+func (m *DeleteTagModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -43,7 +44,7 @@ func (i *DeleteTagModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name)
+	err = dbase.QueryRow("SELECT tag_name FROM tags WHERE tag_id = ? AND ib_id = ? LIMIT 1", m.ID, m.Ib).Scan(&m.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -55,10 +56,10 @@ func (i *DeleteTagModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *DeleteTagModel) Delete() (err error) {
+func (m *DeleteTagModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("DeleteTagModel is not valid")
 	}
 
@@ -74,7 +75,7 @@ func (i *DeleteTagModel) Delete() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Id, i.Ib)
+	_, err = ps1.Exec(m.ID, m.Ib)
 	if err != nil {
 		return
 	}

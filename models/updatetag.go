@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/microcosm-cc/bluemonday"
 	"html"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
@@ -11,29 +12,30 @@ import (
 	"github.com/eirka/eirka-libs/validate"
 )
 
+// UpdateTagModel holds request input
 type UpdateTagModel struct {
-	Id      uint
+	ID      uint
 	Ib      uint
 	Tag     string
 	TagType uint
 }
 
-// check struct validity
-func (u *UpdateTagModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *UpdateTagModel) IsValid() bool {
 
-	if u.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if u.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
-	if u.Tag == "" {
+	if m.Tag == "" {
 		return false
 	}
 
-	if u.TagType == 0 {
+	if m.TagType == 0 {
 		return false
 	}
 
@@ -41,12 +43,13 @@ func (u *UpdateTagModel) IsValid() bool {
 
 }
 
-func (i *UpdateTagModel) ValidateInput() (err error) {
-	if i.Ib == 0 {
+// ValidateInput checks the data input for correctness
+func (m *UpdateTagModel) ValidateInput() (err error) {
+	if m.Ib == 0 {
 		return e.ErrInvalidParam
 	}
 
-	if i.TagType == 0 {
+	if m.TagType == 0 {
 		return e.ErrInvalidParam
 	}
 
@@ -54,10 +57,10 @@ func (i *UpdateTagModel) ValidateInput() (err error) {
 	p := bluemonday.StrictPolicy()
 
 	// sanitize for html and xss
-	i.Tag = html.UnescapeString(p.Sanitize(i.Tag))
+	m.Tag = html.UnescapeString(p.Sanitize(m.Tag))
 
 	// Validate name input
-	tag := validate.Validate{Input: i.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
+	tag := validate.Validate{Input: m.Tag, Max: config.Settings.Limits.TagMaxLength, Min: config.Settings.Limits.TagMinLength}
 	if tag.IsEmpty() {
 		return e.ErrNoTagName
 	} else if tag.MinPartsLength() {
@@ -71,7 +74,7 @@ func (i *UpdateTagModel) ValidateInput() (err error) {
 }
 
 // Status will return info
-func (i *UpdateTagModel) Status() (err error) {
+func (m *UpdateTagModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -82,7 +85,7 @@ func (i *UpdateTagModel) Status() (err error) {
 	var dupe bool
 
 	// check if there is already a tag
-	err = dbase.QueryRow("select count(*) from tags where tag_name = ? AND ib_id = ? AND NOT tag_id = ?", i.Tag, i.Ib, i.Id).Scan(&dupe)
+	err = dbase.QueryRow("select count(*) from tags where tag_name = ? AND ib_id = ? AND NOT tag_id = ?", m.Tag, m.Ib, m.ID).Scan(&dupe)
 	if err != nil {
 		return
 	}
@@ -96,10 +99,10 @@ func (i *UpdateTagModel) Status() (err error) {
 }
 
 // Update will update the entry
-func (i *UpdateTagModel) Update() (err error) {
+func (m *UpdateTagModel) Update() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("UpdateTagModel is not valid")
 	}
 
@@ -115,7 +118,7 @@ func (i *UpdateTagModel) Update() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Tag, i.TagType, i.Id, i.Ib)
+	_, err = ps1.Exec(m.Tag, m.TagType, m.ID, m.Ib)
 	if err != nil {
 		return
 	}

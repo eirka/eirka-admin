@@ -14,29 +14,30 @@ import (
 	local "github.com/eirka/eirka-admin/config"
 )
 
+// PurgePostModel holds request input
 type PurgePostModel struct {
 	Thread uint
-	Id     uint
+	ID     uint
 	Ib     uint
 	Name   string
 }
 
-// check struct validity
-func (p *PurgePostModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *PurgePostModel) IsValid() bool {
 
-	if p.Thread == 0 {
+	if m.Thread == 0 {
 		return false
 	}
 
-	if p.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if p.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if p.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
@@ -44,14 +45,14 @@ func (p *PurgePostModel) IsValid() bool {
 
 }
 
-type PostImage struct {
-	Id    uint
+type imageInfo struct {
+	ID    uint
 	File  string
 	Thumb string
 }
 
 // Status will return info
-func (i *PurgePostModel) Status() (err error) {
+func (m *PurgePostModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -60,7 +61,7 @@ func (i *PurgePostModel) Status() (err error) {
 	}
 
 	// get thread ib and title
-	err = dbase.QueryRow("SELECT thread_title FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Thread, i.Ib).Scan(&i.Name)
+	err = dbase.QueryRow("SELECT thread_title FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", m.Thread, m.Ib).Scan(&m.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -72,10 +73,10 @@ func (i *PurgePostModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *PurgePostModel) Delete() (err error) {
+func (m *PurgePostModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("PurgePostModel is not valid")
 	}
 
@@ -86,14 +87,14 @@ func (i *PurgePostModel) Delete() (err error) {
 	}
 	defer tx.Rollback()
 
-	image := PostImage{}
+	image := imageInfo{}
 
 	img := true
 
 	// check if post has an image
-	err = tx.QueryRow(`SELECT image_id,image_file,image_thumbnail FROM posts 
-    INNER JOIN images on posts.post_id = images.post_id 
-    WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`, i.Thread, i.Id).Scan(&image.Id, &image.File, &image.Thumb)
+	err = tx.QueryRow(`SELECT image_id,image_file,image_thumbnail FROM posts
+    INNER JOIN images on posts.post_id = images.post_id
+    WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`, m.Thread, m.ID).Scan(&image.ID, &image.File, &image.Thumb)
 	if err == sql.ErrNoRows {
 		img = false
 	} else if err != nil {
@@ -107,7 +108,7 @@ func (i *PurgePostModel) Delete() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Thread, i.Id)
+	_, err = ps1.Exec(m.Thread, m.ID)
 	if err != nil {
 		return
 	}

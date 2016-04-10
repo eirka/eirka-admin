@@ -8,30 +8,31 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// DeletePostModel holds request input
 type DeletePostModel struct {
 	Thread  uint
-	Id      uint
+	ID      uint
 	Ib      uint
 	Name    string
 	Deleted bool
 }
 
-// check struct validity
-func (d *DeletePostModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *DeletePostModel) IsValid() bool {
 
-	if d.Thread == 0 {
+	if m.Thread == 0 {
 		return false
 	}
 
-	if d.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if d.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
-	if d.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
@@ -40,7 +41,7 @@ func (d *DeletePostModel) IsValid() bool {
 }
 
 // Status will return info
-func (i *DeletePostModel) Status() (err error) {
+func (m *DeletePostModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -49,9 +50,9 @@ func (i *DeletePostModel) Status() (err error) {
 	}
 
 	// get thread ib and title
-	err = dbase.QueryRow(`SELECT thread_title, post_deleted FROM threads 
+	err = dbase.QueryRow(`SELECT thread_title, post_deleted FROM threads
 	INNER JOIN posts on threads.thread_id = posts.thread_id
-	WHERE threads.thread_id = ? AND ib_id = ? LIMIT 1`, i.Thread, i.Ib).Scan(&i.Name, &i.Deleted)
+	WHERE threads.thread_id = ? AND ib_id = ? LIMIT 1`, m.Thread, m.Ib).Scan(&m.Name, &m.Deleted)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -63,10 +64,10 @@ func (i *DeletePostModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *DeletePostModel) Delete() (err error) {
+func (m *DeletePostModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("DeletePostModel is not valid")
 	}
 
@@ -85,7 +86,7 @@ func (i *DeletePostModel) Delete() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(!i.Deleted, i.Thread, i.Id)
+	_, err = ps1.Exec(!m.Deleted, m.Thread, m.ID)
 	if err != nil {
 		return
 	}

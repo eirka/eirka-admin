@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -14,14 +15,14 @@ import (
 )
 
 // ban Ip input
-type banIpForm struct {
+type banIPForm struct {
 	Reason string `json:"reason" binding:"required"`
 }
 
-// BanIpController will ban an ip
-func BanIpController(c *gin.Context) {
+// BanIPController will ban an ip
+func BanIPController(c *gin.Context) {
 	var err error
-	var bif banIpForm
+	var bif banIPForm
 
 	// Get parameters from validate middleware
 	params := c.MustGet("params").([]uint)
@@ -43,11 +44,11 @@ func BanIpController(c *gin.Context) {
 	}
 
 	// Initialize model struct
-	m := &models.BanIpModel{
+	m := &models.BanIPModel{
 		Ib:     params[0],
 		Thread: params[1],
-		Id:     params[2],
-		User:   userdata.Id,
+		ID:     params[2],
+		User:   userdata.ID,
 		Reason: bif.Reason,
 	}
 
@@ -72,18 +73,18 @@ func BanIpController(c *gin.Context) {
 	}
 
 	// ban the ip in cloudflare
-	go u.CloudFlareBanIp(m.Ip, m.Reason)
+	go u.CloudFlareBanIP(m.IP, m.Reason)
 
 	// response message
-	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditBanIp})
+	c.JSON(http.StatusOK, gin.H{"success_message": audit.AuditBanIP})
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
-		Action: audit.AuditBanIp,
+		IP:     c.ClientIP(),
+		Action: audit.AuditBanIP,
 		Info:   fmt.Sprintf("%s", m.Reason),
 	}
 

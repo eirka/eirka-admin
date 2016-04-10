@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -32,7 +33,7 @@ func DeletePostController(c *gin.Context) {
 	m := &models.DeletePostModel{
 		Ib:     params[0],
 		Thread: params[1],
-		Id:     params[2],
+		ID:     params[2],
 	}
 
 	// Check the record id and get further info
@@ -56,20 +57,20 @@ func DeletePostController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
-	index_key := fmt.Sprintf("%s:%d", "index", m.Ib)
-	directory_key := fmt.Sprintf("%s:%d", "directory", m.Ib)
-	thread_key := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
-	post_key := fmt.Sprintf("%s:%d:%d", "post", m.Ib, m.Thread)
-	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
-	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
-	new_key := fmt.Sprintf("%s:%d", "new", m.Ib)
-	popular_key := fmt.Sprintf("%s:%d", "popular", m.Ib)
-	favorited_key := fmt.Sprintf("%s:%d", "favorited", m.Ib)
+	indexKey := fmt.Sprintf("%s:%d", "index", m.Ib)
+	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
+	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.Thread)
+	postKey := fmt.Sprintf("%s:%d:%d", "post", m.Ib, m.Thread)
+	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
+	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
+	newKey := fmt.Sprintf("%s:%d", "new", m.Ib)
+	popularKey := fmt.Sprintf("%s:%d", "popular", m.Ib)
+	favoritedKey := fmt.Sprintf("%s:%d", "favorited", m.Ib)
 
-	err = cache.Delete(index_key, directory_key, thread_key, post_key, tags_key, image_key, new_key, popular_key, favorited_key)
+	err = cache.Delete(indexKey, directoryKey, threadKey, postKey, tagsKey, imageKey, newKey, popularKey, favoritedKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("DeletePostController.cache.Delete")
@@ -81,12 +82,12 @@ func DeletePostController(c *gin.Context) {
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditDeletePost,
-		Info:   fmt.Sprintf("%s/%d", m.Name, m.Id),
+		Info:   fmt.Sprintf("%s/%d", m.Name, m.ID),
 	}
 
 	// submit audit

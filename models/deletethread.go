@@ -8,25 +8,26 @@ import (
 	e "github.com/eirka/eirka-libs/errors"
 )
 
+// DeleteThreadModel holds request input
 type DeleteThreadModel struct {
-	Id      uint
+	ID      uint
 	Name    string
 	Ib      uint
 	Deleted bool
 }
 
-// check struct validity
-func (d *DeleteThreadModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *DeleteThreadModel) IsValid() bool {
 
-	if d.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if d.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if d.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
@@ -35,7 +36,7 @@ func (d *DeleteThreadModel) IsValid() bool {
 }
 
 // Status will return info
-func (i *DeleteThreadModel) Status() (err error) {
+func (m *DeleteThreadModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -44,7 +45,7 @@ func (i *DeleteThreadModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT thread_title, thread_deleted FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name, &i.Deleted)
+	err = dbase.QueryRow("SELECT thread_title, thread_deleted FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", m.ID, m.Ib).Scan(&m.Name, &m.Deleted)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -56,10 +57,10 @@ func (i *DeleteThreadModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *DeleteThreadModel) Delete() (err error) {
+func (m *DeleteThreadModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("DeleteThreadModel is not valid")
 	}
 
@@ -75,7 +76,7 @@ func (i *DeleteThreadModel) Delete() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(!i.Deleted, i.Id, i.Ib)
+	_, err = ps1.Exec(!m.Deleted, m.ID, m.Ib)
 	if err != nil {
 		return
 	}

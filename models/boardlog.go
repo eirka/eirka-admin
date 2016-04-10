@@ -1,28 +1,30 @@
 package models
 
 import (
+	"time"
+
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
-	"time"
 
 	u "github.com/eirka/eirka-admin/utils"
 )
 
-// NewModel holds the parameters from the request and also the key for the cache
+// BoardLogModel holds request input
 type BoardLogModel struct {
 	Ib     uint
 	Page   uint
 	Result BoardLogType
 }
 
+// BoardLogType is the container for the JSON response
 type BoardLogType struct {
 	Body u.PagedResponse `json:"boardlog"`
 }
 
-// format for audit log entries
+// Log format for audit log entries
 type Log struct {
-	Uid    uint       `json:"user_id"`
+	UID    uint       `json:"user_id"`
 	Name   string     `json:"user_name"`
 	Group  uint       `json:"user_group"`
 	Time   *time.Time `json:"log_time"`
@@ -86,7 +88,7 @@ func (i *BoardLogModel) Get() (err error) {
 		// Initialize posts struct
 		entry := Log{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&entry.Uid, &entry.Name, &entry.Group, &entry.Time, &entry.Action, &entry.Meta)
+		err := rows.Scan(&entry.UID, &entry.Name, &entry.Group, &entry.Time, &entry.Action, &entry.Meta)
 		if err != nil {
 			return err
 		}

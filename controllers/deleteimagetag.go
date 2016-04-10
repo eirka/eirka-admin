@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -56,14 +57,14 @@ func DeleteImageTagController(c *gin.Context) {
 	}
 
 	// Initialize cache handle
-	cache := redis.RedisCache
+	cache := redis.Cache
 
 	// Delete redis stuff
-	tags_key := fmt.Sprintf("%s:%d", "tags", m.Ib)
-	tag_key := fmt.Sprintf("%s:%d:%d", "tag", m.Ib, m.Tag)
-	image_key := fmt.Sprintf("%s:%d", "image", m.Ib)
+	tagsKey := fmt.Sprintf("%s:%d", "tags", m.Ib)
+	tagKey := fmt.Sprintf("%s:%d:%d", "tag", m.Ib, m.Tag)
+	imageKey := fmt.Sprintf("%s:%d", "image", m.Ib)
 
-	err = cache.Delete(tags_key, tag_key, image_key)
+	err = cache.Delete(tagsKey, tagKey, imageKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("DeleteImageTagController.cache.Delete")
@@ -75,10 +76,10 @@ func DeleteImageTagController(c *gin.Context) {
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditDeleteImageTag,
 		Info:   fmt.Sprintf("%d/%s", m.Image, m.Name),
 	}

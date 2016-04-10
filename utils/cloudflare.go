@@ -11,27 +11,28 @@ import (
 	"github.com/eirka/eirka-libs/config"
 )
 
-type CloudFlareBanIpPayload struct {
+type cloudFlareBanIPPayload struct {
 	Mode          string                       `json:"mode"`
 	Notes         string                       `json:"notes"`
-	Configuration CloudFlareBanIpConfiguration `json:"configuration"`
+	Configuration cloudFlareBanIPConfiguration `json:"configuration"`
 }
 
-type CloudFlareBanIpConfiguration struct {
+type cloudFlareBanIPConfiguration struct {
 	Target string `json:"target"`
 	Value  string `json:"value"`
 }
 
-func CloudFlareBanIp(ip, reason string) (err error) {
+// CloudFlareBanIP will query the CloudFlare API and add the IP to ban to all zones
+func CloudFlareBanIP(ip, reason string) (err error) {
 
 	if len(ip) == 0 {
 		return errors.New("no ip provided")
 	}
 
 	// block ip request json
-	data := CloudFlareBanIpPayload{
+	data := cloudFlareBanIPPayload{
 		Mode: "block",
-		Configuration: CloudFlareBanIpConfiguration{
+		Configuration: cloudFlareBanIPConfiguration{
 			Target: "ip",
 			Value:  ip,
 		},
@@ -44,14 +45,14 @@ func CloudFlareBanIp(ip, reason string) (err error) {
 	}
 
 	// api endpoint
-	cloudflareUrl := &url.URL{
+	cloudflareURL := &url.URL{
 		Scheme: "https",
 		Host:   "api.cloudflare.com",
 		Path:   "/client/v4/user/firewall/access_rules/rules",
 	}
 
 	// our http request
-	req, err := http.NewRequest(http.MethodPost, cloudflareUrl.String(), bytes.NewReader(payloadBytes))
+	req, err := http.NewRequest(http.MethodPost, cloudflareURL.String(), bytes.NewReader(payloadBytes))
 	if err != nil {
 		return errors.New("Error creating CloudFlare request")
 	}

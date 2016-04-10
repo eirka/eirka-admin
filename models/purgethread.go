@@ -14,24 +14,25 @@ import (
 	local "github.com/eirka/eirka-admin/config"
 )
 
+// PurgeThreadModel holds request input
 type PurgeThreadModel struct {
-	Id   uint
+	ID   uint
 	Name string
 	Ib   uint
 }
 
-// check struct validity
-func (p *PurgeThreadModel) IsValid() bool {
+// IsValid will check struct validity
+func (m *PurgeThreadModel) IsValid() bool {
 
-	if p.Id == 0 {
+	if m.ID == 0 {
 		return false
 	}
 
-	if p.Name == "" {
+	if m.Name == "" {
 		return false
 	}
 
-	if p.Ib == 0 {
+	if m.Ib == 0 {
 		return false
 	}
 
@@ -39,14 +40,8 @@ func (p *PurgeThreadModel) IsValid() bool {
 
 }
 
-type ThreadImages struct {
-	Id    uint
-	File  string
-	Thumb string
-}
-
 // Status will return info
-func (i *PurgeThreadModel) Status() (err error) {
+func (m *PurgeThreadModel) Status() (err error) {
 
 	// Get Database handle
 	dbase, err := db.GetDb()
@@ -55,7 +50,7 @@ func (i *PurgeThreadModel) Status() (err error) {
 	}
 
 	// Check if favorite is already there
-	err = dbase.QueryRow("SELECT thread_title FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", i.Id, i.Ib).Scan(&i.Name)
+	err = dbase.QueryRow("SELECT thread_title FROM threads WHERE thread_id = ? AND ib_id = ? LIMIT 1", m.ID, m.Ib).Scan(&m.Name)
 	if err == sql.ErrNoRows {
 		return e.ErrNotFound
 	} else if err != nil {
@@ -67,10 +62,10 @@ func (i *PurgeThreadModel) Status() (err error) {
 }
 
 // Delete will remove the entry
-func (i *PurgeThreadModel) Delete() (err error) {
+func (m *PurgeThreadModel) Delete() (err error) {
 
 	// check model validity
-	if !i.IsValid() {
+	if !m.IsValid() {
 		return errors.New("PurgeThreadModel is not valid")
 	}
 
@@ -80,22 +75,22 @@ func (i *PurgeThreadModel) Delete() (err error) {
 		return
 	}
 
-	images := []ThreadImages{}
+	images := []imageInfo{}
 
 	// Get thread images
 	rows, err := dbase.Query(`SELECT image_id,image_file,image_thumbnail FROM images
     INNER JOIN posts on images.post_id = posts.post_id
     INNER JOIN threads on threads.thread_id = posts.thread_id
-    WHERE threads.thread_id = ? AND ib_id = ?`, i.Id, i.Ib)
+    WHERE threads.thread_id = ? AND ib_id = ?`, m.ID, m.Ib)
 	if err != nil {
 		return
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		image := ThreadImages{}
+		image := imageInfo{}
 
-		err := rows.Scan(&image.Id, &image.File, &image.Thumb)
+		err = rows.Scan(&image.ID, &image.File, &image.Thumb)
 		if err != nil {
 			return err
 		}
@@ -114,7 +109,7 @@ func (i *PurgeThreadModel) Delete() (err error) {
 	}
 	defer ps1.Close()
 
-	_, err = ps1.Exec(i.Id, i.Ib)
+	_, err = ps1.Exec(m.ID, m.Ib)
 	if err != nil {
 		return
 	}

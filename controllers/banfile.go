@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -45,8 +46,8 @@ func BanFileController(c *gin.Context) {
 	m := &models.BanFileModel{
 		Ib:     params[0],
 		Thread: params[1],
-		Id:     params[2],
-		User:   userdata.Id,
+		ID:     params[2],
+		User:   userdata.ID,
 		Reason: bff.Reason,
 	}
 
@@ -75,10 +76,10 @@ func BanFileController(c *gin.Context) {
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     m.Ib,
 		Type:   audit.ModLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditBanFile,
 		Info:   fmt.Sprintf("%s", m.Reason),
 	}

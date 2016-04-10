@@ -8,13 +8,14 @@ import (
 	u "github.com/eirka/eirka-admin/utils"
 )
 
-// NewModel holds the parameters from the request and also the key for the cache
+// ModLogModel holds request input
 type ModLogModel struct {
 	Ib     uint
 	Page   uint
 	Result ModLogType
 }
 
+// ModLogType is container for JSON response
 type ModLogType struct {
 	Body u.PagedResponse `json:"modlog"`
 }
@@ -75,7 +76,7 @@ func (i *ModLogModel) Get() (err error) {
 		// Initialize posts struct
 		entry := Log{}
 		// Scan rows and place column into struct
-		err := rows.Scan(&entry.Uid, &entry.Name, &entry.Group, &entry.Time, &entry.Action, &entry.Meta)
+		err := rows.Scan(&entry.UID, &entry.Name, &entry.Group, &entry.Time, &entry.Action, &entry.Meta)
 		if err != nil {
 			return err
 		}

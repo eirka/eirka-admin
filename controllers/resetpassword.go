@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/audit"
 	e "github.com/eirka/eirka-libs/errors"
@@ -12,7 +13,7 @@ import (
 
 // reset password input
 type resetPasswordForm struct {
-	Uid uint `json:"uid" binding:"required"`
+	UID uint `json:"uid" binding:"required"`
 }
 
 // ResetPasswordController will reset an ip
@@ -48,7 +49,7 @@ func ResetPasswordController(c *gin.Context) {
 	}
 
 	// update the password in the database
-	err = user.UpdatePassword(hash, rpf.Uid)
+	err = user.UpdatePassword(hash, rpf.UID)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
 		c.Error(err).SetMeta("ResetPasswordController.UpdatePassword")
@@ -60,12 +61,12 @@ func ResetPasswordController(c *gin.Context) {
 
 	// audit log
 	audit := audit.Audit{
-		User:   userdata.Id,
+		User:   userdata.ID,
 		Ib:     params[0],
 		Type:   audit.UserLog,
-		Ip:     c.ClientIP(),
+		IP:     c.ClientIP(),
 		Action: audit.AuditResetPassword,
-		Info:   fmt.Sprintf("%s", rpf.Uid),
+		Info:   fmt.Sprintf("%d", rpf.UID),
 	}
 
 	// submit audit

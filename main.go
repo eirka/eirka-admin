@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/facebookgo/grace/gracehttp"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/facebookgo/grace/gracehttp"
+	"github.com/gin-gonic/gin"
 
 	"github.com/eirka/eirka-libs/config"
 	"github.com/eirka/eirka-libs/cors"
@@ -88,7 +89,7 @@ func main() {
 	admin.POST("/tag/:ib", c.UpdateTagController)
 	admin.POST("/sticky/:ib/:thread", c.StickyThreadController)
 	admin.POST("/close/:ib/:thread", c.CloseThreadController)
-	admin.POST("/ban/ip/:ib/:thread/:post", c.BanIpController)
+	admin.POST("/ban/ip/:ib/:thread/:post", c.BanIPController)
 	admin.POST("/ban/file/:ib/:thread/:post", c.BanFileController)
 	admin.POST("/user/resetpassword/:ib", c.ResetPasswordController)
 
