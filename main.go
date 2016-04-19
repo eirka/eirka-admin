@@ -27,11 +27,11 @@ func init() {
 	dbase := db.Database{
 		User:           local.Settings.Database.User,
 		Password:       local.Settings.Database.Password,
-		Proto:          local.Settings.Database.Proto,
+		Proto:          local.Settings.Database.Protocol,
 		Host:           local.Settings.Database.Host,
 		Database:       local.Settings.Database.Database,
-		MaxIdle:        local.Settings.Database.MaxIdle,
-		MaxConnections: local.Settings.Database.MaxConnections,
+		MaxIdle:        local.Settings.Admin.DatabaseMaxIdle,
+		MaxConnections: local.Settings.Admin.DatabaseMaxConnections,
 	}
 
 	// Set up DB connection
@@ -44,9 +44,9 @@ func init() {
 	r := redis.Redis{
 		// Redis address and max pool connections
 		Protocol:       local.Settings.Redis.Protocol,
-		Address:        local.Settings.Redis.Address,
-		MaxIdle:        local.Settings.Redis.MaxIdle,
-		MaxConnections: local.Settings.Redis.MaxConnections,
+		Address:        local.Settings.Redis.Host,
+		MaxIdle:        local.Settings.Admin.RedisMaxIdle,
+		MaxConnections: local.Settings.Admin.RedisMaxConnections,
 	}
 
 	// Set up Redis connection
@@ -98,7 +98,7 @@ func main() {
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", local.Settings.Admin.Address, local.Settings.Admin.Port),
+		Addr:    fmt.Sprintf("%s:%d", local.Settings.Admin.Host, local.Settings.Admin.Port),
 		Handler: r,
 	}
 
