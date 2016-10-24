@@ -72,7 +72,7 @@ func (m *StatisticsModel) Get() (err error) {
 	// get visitor stats
 	err = dbase.QueryRow(`SELECT COUNT(DISTINCT request_ip) as visitors, COUNT(request_itemkey) as hits
     FROM analytics
-    WHERE request_time BETWEEN (now() - interval 1 day) AND now() AND ib_id = ?`, m.Ib).Scan(&response.Visitors, &response.Hits)
+    WHERE request_time BETWEEN (CURDATE() - INTERVAL 1 DAY) AND now() AND ib_id = ?`, m.Ib).Scan(&response.Visitors, &response.Hits)
 	if err != nil {
 		return
 	}
