@@ -55,18 +55,15 @@ func CloseThreadController(c *gin.Context) {
 		return
 	}
 
-	// Initialize cache handle
-	cache := redis.Cache
-
 	// Delete redis stuff
 	indexKey := fmt.Sprintf("%s:%d", "index", m.Ib)
 	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
 	threadKey := fmt.Sprintf("%s:%d:%d", "thread", m.Ib, m.ID)
 
-	err = cache.Delete(indexKey, directoryKey, threadKey)
+	err = redis.Cache.Delete(indexKey, directoryKey, threadKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("CloseThreadController.cache.Delete")
+		c.Error(err).SetMeta("CloseThreadController.redis.Cache.Delete")
 		return
 	}
 

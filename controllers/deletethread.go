@@ -55,9 +55,6 @@ func DeleteThreadController(c *gin.Context) {
 		return
 	}
 
-	// Initialize cache handle
-	cache := redis.Cache
-
 	// Delete redis stuff
 	indexKey := fmt.Sprintf("%s:%d", "index", m.Ib)
 	directoryKey := fmt.Sprintf("%s:%d", "directory", m.Ib)
@@ -69,10 +66,10 @@ func DeleteThreadController(c *gin.Context) {
 	popularKey := fmt.Sprintf("%s:%d", "popular", m.Ib)
 	favoritedKey := fmt.Sprintf("%s:%d", "favorited", m.Ib)
 
-	err = cache.Delete(indexKey, directoryKey, threadKey, postKey, tagsKey, imageKey, newKey, popularKey, favoritedKey)
+	err = redis.Cache.Delete(indexKey, directoryKey, threadKey, postKey, tagsKey, imageKey, newKey, popularKey, favoritedKey)
 	if err != nil {
 		c.JSON(e.ErrorMessage(e.ErrInternalError))
-		c.Error(err).SetMeta("DeleteThreadController.cache.Delete")
+		c.Error(err).SetMeta("DeleteThreadController.redis.Cache.Delete")
 		return
 	}
 

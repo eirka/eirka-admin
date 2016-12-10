@@ -25,6 +25,11 @@ type cloudFlareBanIPConfiguration struct {
 // CloudFlareBanIP will query the CloudFlare API and add the IP to ban to all zones
 func CloudFlareBanIP(ip, reason string) (err error) {
 
+	// noop if cloudflare is not configured
+	if !config.Settings.CloudFlare.Configured {
+		return
+	}
+
 	if len(ip) == 0 {
 		return errors.New("no ip provided")
 	}
