@@ -75,6 +75,4 @@ func ResetPasswordController(c *gin.Context) {
 		c.Error(err).SetMeta("ResetPasswordController.audit.Submit")
 	}
 
-	return
-
 }

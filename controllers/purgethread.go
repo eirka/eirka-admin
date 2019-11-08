@@ -83,7 +83,7 @@ func PurgeThreadController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditPurgeThread,
-		Info:   fmt.Sprintf("%s", m.Name),
+		Info:   m.Name,
 	}
 
 	// submit audit
@@ -91,7 +91,5 @@ func PurgeThreadController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("PurgeThreadController.audit.Submit")
 	}
-
-	return
 
 }

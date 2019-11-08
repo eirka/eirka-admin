@@ -83,7 +83,7 @@ func DeleteThreadController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditDeleteThread,
-		Info:   fmt.Sprintf("%s", m.Name),
+		Info:   m.Name,
 	}
 
 	// submit audit
@@ -91,7 +91,5 @@ func DeleteThreadController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("DeleteThreadController.audit.Submit")
 	}
-
-	return
 
 }

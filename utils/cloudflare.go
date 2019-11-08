@@ -44,10 +44,7 @@ func CloudFlareBanIP(ip, reason string) (err error) {
 		Notes: reason,
 	}
 
-	payloadBytes, err := json.Marshal(data)
-	if err != nil {
-		// handle err
-	}
+	payloadBytes, _ := json.Marshal(data)
 
 	// api endpoint
 	cloudflareURL := &url.URL{

@@ -87,6 +87,4 @@ func DeleteImageTagController(c *gin.Context) {
 		c.Error(err).SetMeta("DeleteImageTagController.audit.Submit")
 	}
 
-	return
-
 }

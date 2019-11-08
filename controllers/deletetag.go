@@ -77,7 +77,7 @@ func DeleteTagController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditDeleteTag,
-		Info:   fmt.Sprintf("%s", m.Name),
+		Info:   m.Name,
 	}
 
 	// submit audit
@@ -85,7 +85,5 @@ func DeleteTagController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("DeleteTagController.audit.Submit")
 	}
-
-	return
 
 }

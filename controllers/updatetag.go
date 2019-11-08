@@ -103,7 +103,7 @@ func UpdateTagController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditUpdateTag,
-		Info:   fmt.Sprintf("%s", m.Tag),
+		Info:   m.Tag,
 	}
 
 	// submit audit
@@ -111,7 +111,5 @@ func UpdateTagController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("UpdateTagController.audit.Submit")
 	}
-
-	return
 
 }

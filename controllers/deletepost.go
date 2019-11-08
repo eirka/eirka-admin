@@ -93,6 +93,4 @@ func DeletePostController(c *gin.Context) {
 		c.Error(err).SetMeta("DeletePostController.audit.Submit")
 	}
 
-	return
-
 }

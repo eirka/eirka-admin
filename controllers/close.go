@@ -86,7 +86,7 @@ func CloseThreadController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: successMessage,
-		Info:   fmt.Sprintf("%s", m.Name),
+		Info:   m.Name,
 	}
 
 	// submit audit
@@ -94,7 +94,5 @@ func CloseThreadController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("CloseThreadController.audit.Submit")
 	}
-
-	return
 
 }

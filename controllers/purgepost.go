@@ -93,6 +93,4 @@ func PurgePostController(c *gin.Context) {
 		c.Error(err).SetMeta("PurgePostController.audit.Submit")
 	}
 
-	return
-
 }

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -85,7 +84,7 @@ func BanIPController(c *gin.Context) {
 		Type:   audit.ModLog,
 		IP:     c.ClientIP(),
 		Action: audit.AuditBanIP,
-		Info:   fmt.Sprintf("%s", m.Reason),
+		Info:   m.Reason,
 	}
 
 	// submit audit
@@ -93,7 +92,5 @@ func BanIPController(c *gin.Context) {
 	if err != nil {
 		c.Error(err).SetMeta("BanIpController.audit.Submit")
 	}
-
-	return
 
 }
