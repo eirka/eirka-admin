@@ -3,11 +3,11 @@ module github.com/eirka/eirka-admin
 go 1.17
 
 require (
-	github.com/eirka/eirka-libs v1.7.0
+	github.com/eirka/eirka-libs v1.8.0
 	github.com/facebookgo/grace v0.0.0-20180706040059-75cf19382434
 	github.com/facebookgo/pidfile v0.0.0-20150612191647-f242e2999868
 	github.com/gin-gonic/gin v1.7.7
-	github.com/microcosm-cc/bluemonday v1.0.17
+	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/robfig/cron v1.2.0
 )
 
