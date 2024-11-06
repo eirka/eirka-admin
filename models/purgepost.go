@@ -134,18 +134,25 @@ func (m *PurgePostModel) Delete() (err error) {
 		// delete from amazon s3
 		s3 := amazon.New()
 
-		s3.Delete(fmt.Sprintf("src/%s", image.File))
+		err = s3.Delete(fmt.Sprintf("src/%s", image.File))
 		if err != nil {
 			return
 		}
 
-		s3.Delete(fmt.Sprintf("thumb/%s", image.Thumb))
+		err = s3.Delete(fmt.Sprintf("thumb/%s", image.Thumb))
 		if err != nil {
 			return
 		}
 
-		os.RemoveAll(filepath.Join(local.Settings.Directories.ImageDir, image.File))
-		os.RemoveAll(filepath.Join(local.Settings.Directories.ThumbnailDir, image.Thumb))
+		err = os.RemoveAll(filepath.Join(local.Settings.Directories.ImageDir, image.File))
+		if err != nil {
+			return
+		}
+
+		err = os.RemoveAll(filepath.Join(local.Settings.Directories.ThumbnailDir, image.Thumb))
+		if err != nil {
+			return
+		}
 
 	}
 

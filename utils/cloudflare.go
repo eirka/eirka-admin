@@ -56,7 +56,7 @@ func CloudFlareBanIP(ip, reason string) (err error) {
 	// our http request
 	req, err := http.NewRequest(http.MethodPost, cloudflareURL.String(), bytes.NewReader(payloadBytes))
 	if err != nil {
-		return errors.New("Error creating CloudFlare request")
+		return errors.New("error creating cloudflare request")
 	}
 
 	req.Header.Set("X-Auth-Email", config.Settings.CloudFlare.Email)
@@ -73,7 +73,7 @@ func CloudFlareBanIP(ip, reason string) (err error) {
 	// TODO: add errors here to a system log
 	_, err = netClient.Do(req)
 	if err != nil {
-		return errors.New("Error reaching CloudFlare")
+		return errors.New("error reaching cloudflare")
 	}
 
 	return

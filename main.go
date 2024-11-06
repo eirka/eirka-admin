@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/facebookgo/pidfile"
@@ -107,10 +108,14 @@ func main() {
 	//admin.DELETE("/flushcache", c.DeleteCacheController)
 
 	s := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", local.Settings.Admin.Host, local.Settings.Admin.Port),
-		Handler: r,
+		Addr:              fmt.Sprintf("%s:%d", local.Settings.Admin.Host, local.Settings.Admin.Port),
+		ReadHeaderTimeout: 2 * time.Second,
+		Handler:           r,
 	}
 
-	gracehttp.Serve(s)
+	err := gracehttp.Serve(s)
+	if err != nil {
+		panic("Could not start server")
+	}
 
 }

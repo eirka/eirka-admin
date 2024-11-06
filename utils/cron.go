@@ -11,7 +11,10 @@ func init() {
 	c := cron.New()
 
 	// prune old analytics
-	c.AddFunc("@midnight", PruneAnalytics)
+	err := c.AddFunc("@midnight", PruneAnalytics)
+	if err != nil {
+		panic("Could not add prune analytics cron job")
+	}
 
 	c.Start()
 
