@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -14,50 +13,7 @@ import (
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
-	"github.com/eirka/eirka-libs/user"
 )
-
-// Helper for requests
-func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
-	req.Header.Set("X-Real-IP", "127.0.0.1")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
-}
-
-// Error message format
-func errorMessage(err error) string {
-	return fmt.Sprintf(`{"error_message":"%s"}`, err)
-}
-
-// Success message format
-func successMessage(message string) string {
-	return fmt.Sprintf(`{"success_message":"%s"}`, message)
-}
-
-// Custom middleware that mocks an authenticated admin user
-func mockAdminMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Set the required context values for StickyThreadController
-		c.Set("userdata", user.User{ID: 1})
-		c.Set("protected", true)
-		
-		// Get thread ID and board ID from the URL parameters
-		ib := c.Param("ib")
-		id := c.Param("id")
-		
-		// Convert them to uint and set as params
-		c.Set("params", []uint{1, 1}) // Default to 1, 1
-		
-		if ib != "" && id != "" {
-			// In a real app we would parse these properly
-			c.Set("params", []uint{1, 1})
-		}
-		
-		c.Next()
-	}
-}
 
 func TestStickyThreadController(t *testing.T) {
 	var err error
@@ -66,8 +22,8 @@ func TestStickyThreadController(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	// Use our mock middleware instead of the real one
-	router.Use(mockAdminMiddleware())
+	// Use our mock middleware 
+	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
 	// Set up routes
 	router.POST("/sticky/:ib/:id", StickyThreadController)
@@ -95,9 +51,6 @@ func TestStickyThreadController(t *testing.T) {
 	// Mock Redis cache deletion
 	redis.Cache.Mock.Command("DEL", "index:1", "directory:1", "thread:1:1")
 
-	// This controller likely uses the audit.Audit.Submit method which does the DB logic internally
-	// So we don't need to mock the SQL for it, we just need the call to succeed
-
 	// Perform the request
 	first := performRequest(router, "POST", "/sticky/1/1")
 
@@ -116,8 +69,8 @@ func TestStickyThreadController_UnstickThread(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	// Use our mock middleware instead of the real one
-	router.Use(mockAdminMiddleware())
+	// Use our mock middleware
+	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
 	// Set up routes
 	router.POST("/sticky/:ib/:id", StickyThreadController)
@@ -161,16 +114,11 @@ func TestStickyThreadController_NotProtected(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	// Create the test route with not protected middleware
-	router.POST("/sticky/:ib/:id", func(c *gin.Context) {
-		// Mock context values but with protected = false
-		c.Set("userdata", user.User{ID: 1})
-		c.Set("protected", false)
-		c.Set("params", []uint{1, 1})
-		
-		// Call controller
-		StickyThreadController(c)
-	})
+	// Use non-protected middleware
+	router.Use(mockNonAdminMiddleware([]uint{1, 1}))
+	
+	// Set up routes
+	router.POST("/sticky/:ib/:id", StickyThreadController)
 
 	// Perform the request
 	first := performRequest(router, "POST", "/sticky/1/1")
@@ -189,7 +137,7 @@ func TestStickyThreadController_DatabaseConnectionError(t *testing.T) {
 	router := gin.New()
 
 	// Use our mock middleware
-	router.Use(mockAdminMiddleware())
+	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
 	// Set up routes
 	router.POST("/sticky/:ib/:id", StickyThreadController)
@@ -226,7 +174,7 @@ func TestStickyThreadController_RedisError(t *testing.T) {
 	router := gin.New()
 	
 	// Use our mock middleware
-	router.Use(mockAdminMiddleware())
+	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
 	// Set up routes
 	router.POST("/sticky/:ib/:id", StickyThreadController)

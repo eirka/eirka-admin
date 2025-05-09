@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +9,6 @@ import (
 
 	e "github.com/eirka/eirka-libs/errors"
 )
-
-// Format error messages like the API
-func errorMessageJSON(err error) string {
-	return fmt.Sprintf(`{"error_message":"%s"}`, err)
-}
 
 func TestErrorController(t *testing.T) {
 	// Set up Gin
@@ -25,14 +18,12 @@ func TestErrorController(t *testing.T) {
 	// Set up routes
 	router.GET("/error", ErrorController)
 
-	// Create request
-	req, _ := http.NewRequest("GET", "/error", nil)
-	w := httptest.NewRecorder()
-
 	// Perform the request
-	router.ServeHTTP(w, req)
+	response := performRequest(router, "GET", "/error")
 
-	// Check assertions
-	assert.Equal(t, http.StatusNotFound, w.Code, "HTTP request code should match")
-	assert.JSONEq(t, w.Body.String(), errorMessageJSON(e.ErrNotFound), "HTTP response should match")
+	// Check response code
+	assert.Equal(t, http.StatusNotFound, response.Code, "HTTP status code should be 404")
+	
+	// Check response body
+	assert.JSONEq(t, errorMessage(e.ErrNotFound), response.Body.String(), "Response should match expected error message")
 }
