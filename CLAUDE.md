@@ -14,6 +14,9 @@ go build -o eirka-admin
 
 # Run the project
 ./eirka-admin
+
+# Run tests
+go test -v ./...
 ```
 
 ## Code Architecture
@@ -46,6 +49,8 @@ The project follows a typical MVC-like structure:
 - **robfig/cron** - Cron job scheduling
 - **go-sql-driver/mysql** - MySQL driver
 - **gomodule/redigo** - Redis client
+- **gopkg.in/DATA-DOG/go-sqlmock.v1** - SQL mocking for tests
+- **github.com/stretchr/testify** - Test assertions and mocking
 
 ## Database Structure
 
@@ -62,6 +67,39 @@ Authentication is handled via the eirka-libs/user package, which uses JWT tokens
 ## Redis Caching
 
 The application uses Redis for caching. Many controllers clear Redis caches when data is modified (e.g., when a post is deleted).
+
+## Testing
+
+The project uses Go's standard testing package along with some helper libraries:
+
+1. **Controller Tests**
+   - Tests are in corresponding `*_test.go` files in the controllers directory
+   - Use `httptest.ResponseRecorder` to capture HTTP responses
+   - Use mock middleware to simulate authenticated users and validated parameters
+   - Mock Redis with `redis.NewRedisMock()` and SQL with `db.NewTestDb()`
+   - Test both success and error paths
+
+2. **Model Tests**
+   - Tests are in corresponding `*_test.go` files in the models directory
+   - Uses `go-sqlmock` to mock database interactions
+   - Test validation logic with both valid and invalid input data
+   - Test database interactions, including error cases
+   - Test query parameter handling
+
+3. **Helper Test Functions**
+   - `performRequest`: Create HTTP requests for controller testing
+   - `errorMessage`: Format error message JSON for assertions
+   - `successMessage`: Format success message JSON for assertions
+   - `mockAdminMiddleware`: Simulate authenticated admin middleware
+
+4. **Test Patterns**
+   - Always test both success and error paths
+   - Mock external dependencies (database, Redis, etc.)
+   - Verify that SQL expectations are met after test execution
+   - Reset mocks between tests
+   - Test different response status codes
+   - Test response body content
+   - Follow the same patterns used in eirka-post for consistent testing
 
 ## Development Notes
 
