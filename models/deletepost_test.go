@@ -191,6 +191,64 @@ func TestDeletePostDelete(t *testing.T) {
 	// Begin transaction
 	mock.ExpectBegin()
 
+	// Expect query for post count - return multiple posts
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(5)) // Multiple posts in thread
+
+	// Delete prepare and exec - set post to deleted
+	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
+		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(!m.Deleted, m.Thread, m.ID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	// Commit transaction
+	mock.ExpectCommit()
+
+	// Delete the post
+	err = m.Delete()
+	assert.NoError(t, err, "No error should be returned")
+
+	// Verify all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
+func TestDeletePostDeleteLastPost(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Initialize model with parameters
+	m := &DeletePostModel{
+		Thread:  1,
+		ID:      1,
+		Ib:      1,
+		Name:    "Test Thread",
+		Deleted: false,
+	}
+
+	// Begin transaction
+	mock.ExpectBegin()
+
+	// Expect query for post count - return only one post
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(1)) // Only one post in thread
+
+	// Expect thread deletion as well
+	mock.ExpectPrepare(`UPDATE threads SET thread_deleted = 1
+		WHERE thread_id = \? AND ib_id = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(m.Thread, m.Ib).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
 	// Delete prepare and exec - set post to deleted
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
 		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
@@ -224,6 +282,44 @@ func TestDeletePostDeleteInvalid(t *testing.T) {
 	assert.Equal(t, "DeletePostModel is not valid", err.Error(), "Error message should match expected value")
 }
 
+func TestDeletePostDeleteCountError(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Initialize model with parameters
+	m := &DeletePostModel{
+		Thread:  1,
+		ID:      1,
+		Ib:      1,
+		Name:    "Test Thread",
+		Deleted: false,
+	}
+
+	// Begin transaction
+	mock.ExpectBegin()
+
+	// Expect query for post count - return an error
+	expectedError := errors.New("count query error")
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnError(expectedError)
+
+	// Rollback transaction
+	mock.ExpectRollback()
+
+	// Delete the post
+	err = m.Delete()
+	assert.Error(t, err, "Error should be returned")
+	assert.Equal(t, expectedError, err, "Error should match the expected error")
+
+	// Verify all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
 func TestDeletePostDeleteBeginError(t *testing.T) {
 	var err error
 
@@ -253,6 +349,96 @@ func TestDeletePostDeleteBeginError(t *testing.T) {
 	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
 }
 
+func TestDeletePostDeleteThreadPrepareError(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Initialize model with parameters
+	m := &DeletePostModel{
+		Thread:  1,
+		ID:      1,
+		Ib:      1,
+		Name:    "Test Thread",
+		Deleted: false,
+	}
+
+	// Begin transaction
+	mock.ExpectBegin()
+
+	// Expect query for post count - return only one post
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(1)) // Only one post in thread
+
+	// Expect thread deletion prepare error
+	expectedError := errors.New("thread prepare error")
+	mock.ExpectPrepare(`UPDATE threads SET thread_deleted = 1
+		WHERE thread_id = \? AND ib_id = \? LIMIT 1`).
+		WillReturnError(expectedError)
+
+	// Rollback transaction
+	mock.ExpectRollback()
+
+	// Delete the post
+	err = m.Delete()
+	assert.Error(t, err, "Error should be returned")
+	assert.Equal(t, expectedError, err, "Error should match the expected error")
+
+	// Verify all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
+func TestDeletePostDeleteThreadExecError(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Initialize model with parameters
+	m := &DeletePostModel{
+		Thread:  1,
+		ID:      1,
+		Ib:      1,
+		Name:    "Test Thread",
+		Deleted: false,
+	}
+
+	// Begin transaction
+	mock.ExpectBegin()
+
+	// Expect query for post count - return only one post
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(1)) // Only one post in thread
+
+	// Expect thread deletion exec error
+	expectedError := errors.New("thread exec error")
+	mock.ExpectPrepare(`UPDATE threads SET thread_deleted = 1
+		WHERE thread_id = \? AND ib_id = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(m.Thread, m.Ib).
+		WillReturnError(expectedError)
+
+	// Rollback transaction
+	mock.ExpectRollback()
+
+	// Delete the post
+	err = m.Delete()
+	assert.Error(t, err, "Error should be returned")
+	assert.Equal(t, expectedError, err, "Error should match the expected error")
+
+	// Verify all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
 func TestDeletePostDeletePrepareError(t *testing.T) {
 	var err error
 
@@ -271,6 +457,13 @@ func TestDeletePostDeletePrepareError(t *testing.T) {
 
 	// Begin transaction
 	mock.ExpectBegin()
+
+	// Expect query for post count - return multiple posts
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(5)) // Multiple posts in thread
 
 	// Delete prepare error
 	expectedError := errors.New("prepare error")
@@ -309,6 +502,13 @@ func TestDeletePostDeleteExecError(t *testing.T) {
 	// Begin transaction
 	mock.ExpectBegin()
 
+	// Expect query for post count - return multiple posts
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(5)) // Multiple posts in thread
+
 	// Delete prepare and exec error
 	expectedError := errors.New("exec error")
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
@@ -324,6 +524,45 @@ func TestDeletePostDeleteExecError(t *testing.T) {
 	err = m.Delete()
 	assert.Error(t, err, "Error should be returned")
 	assert.Contains(t, err.Error(), expectedError.Error(), "Error should contain the expected error message")
+
+	// Verify all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
+func TestDeletePostUndelete(t *testing.T) {
+	var err error
+
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Initialize model with parameters
+	m := &DeletePostModel{
+		Thread:  1,
+		ID:      1,
+		Ib:      1,
+		Name:    "Test Thread",
+		Deleted: true, // Post is already deleted and will be undeleted
+	}
+
+	// Begin transaction
+	mock.ExpectBegin()
+
+	// We should not see any COUNT query since we're undeleting, not deleting
+
+	// Delete prepare and exec - set post to undeleted
+	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
+		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(!m.Deleted, m.Thread, m.ID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	// Commit transaction
+	mock.ExpectCommit()
+
+	// Undelete the post
+	err = m.Delete()
+	assert.NoError(t, err, "No error should be returned")
 
 	// Verify all expectations were met
 	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
@@ -347,6 +586,13 @@ func TestDeletePostDeleteCommitError(t *testing.T) {
 
 	// Begin transaction
 	mock.ExpectBegin()
+
+	// Expect query for post count - return multiple posts
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(m.Thread).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(5)) // Multiple posts in thread
 
 	// Delete prepare and exec - set post to deleted
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?

@@ -78,6 +78,31 @@ func (m *DeletePostModel) Delete() (err error) {
 	}
 	defer tx.Rollback()
 
+	// If we're deleting a post (not undeleting), check if this is the only non-deleted post in the thread
+	if !m.Deleted {
+		var postCount int
+		err = tx.QueryRow(`SELECT COUNT(*) FROM posts
+		WHERE thread_id = ? AND post_deleted = 0`, m.Thread).Scan(&postCount)
+		if err != nil {
+			return
+		}
+
+		// If this is the only non-deleted post in the thread, also mark the thread as deleted
+		if postCount == 1 {
+			ps2, err := tx.Prepare(`UPDATE threads SET thread_deleted = 1
+			WHERE thread_id = ? AND ib_id = ? LIMIT 1`)
+			if err != nil {
+				return err
+			}
+			defer ps2.Close()
+
+			_, err = ps2.Exec(m.Thread, m.Ib)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	// set post to deleted
 	ps1, err := tx.Prepare(`UPDATE posts SET post_deleted = ?
 	WHERE posts.thread_id = ? AND posts.post_num = ? LIMIT 1`)

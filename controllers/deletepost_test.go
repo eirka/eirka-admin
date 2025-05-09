@@ -41,6 +41,12 @@ func TestDeletePostController(t *testing.T) {
 
 	// Mock the Delete query
 	mock.ExpectBegin()
+	// Expect query for post count - return multiple posts
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(3)) // Multiple posts in thread
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
 		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
 		ExpectExec().
@@ -56,7 +62,7 @@ func TestDeletePostController(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body
 	assert.JSONEq(t, successMessage(audit.AuditDeletePost), response.Body.String(), "Response should match expected success message")
 
@@ -167,6 +173,12 @@ func TestDeletePostControllerDeleteError(t *testing.T) {
 
 	// Mock the Delete query with error
 	mock.ExpectBegin()
+	// Expect query for post count
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(3)) // Multiple posts in thread
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
 		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
 		ExpectExec().
@@ -212,6 +224,12 @@ func TestDeletePostControllerRedisError(t *testing.T) {
 
 	// Mock the Delete query - successful
 	mock.ExpectBegin()
+	// Expect query for post count
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(3)) // Multiple posts in thread
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
 		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
 		ExpectExec().
@@ -231,6 +249,69 @@ func TestDeletePostControllerRedisError(t *testing.T) {
 	
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
+
+	// Make sure all expectations were met
+	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
+}
+
+func TestDeletePostControllerLastPost(t *testing.T) {
+	// Set up Gin
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(mockAdminMiddleware([]uint{1, 1, 1}))
+	router.DELETE("/deletepost", DeletePostController)
+
+	// Set up fake Redis connection
+	redis.NewRedisMock()
+
+	// Set up SQL mock
+	mock, err := db.NewTestDb()
+	assert.NoError(t, err, "An error was not expected")
+	defer db.CloseDb()
+
+	// Mock the Status query
+	mock.ExpectQuery(`SELECT thread_title, post_deleted FROM threads
+		INNER JOIN posts on threads.thread_id = posts.thread_id
+		WHERE threads.thread_id = \? AND ib_id = \? LIMIT 1`).
+		WithArgs(1, 1).
+		WillReturnRows(sqlmock.NewRows([]string{"thread_title", "post_deleted"}).
+			AddRow("Test Thread", false))
+
+	// Mock the Delete query
+	mock.ExpectBegin()
+	// Expect query for post count - return ONE post so thread should be deleted
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(1)) // Only one post in thread
+
+	// Expect thread deletion
+	mock.ExpectPrepare(`UPDATE threads SET thread_deleted = 1
+		WHERE thread_id = \? AND ib_id = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(1, 1).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	// Expect post deletion
+	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
+		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
+		ExpectExec().
+		WithArgs(true, 1, 1).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	// Mock Redis cache deletion
+	redis.Cache.Mock.Command("DEL", "index:1", "directory:1", "thread:1:1", "post:1:1", "tags:1", "image:1", "new:1", "popular:1", "favorited:1")
+
+	// Perform the request
+	response := performRequest(router, "DELETE", "/deletepost")
+
+	// Check response code
+	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
+
+	// Check response body
+	assert.JSONEq(t, successMessage(audit.AuditDeletePost), response.Body.String(), "Response should match expected success message")
 
 	// Make sure all expectations were met
 	assert.NoError(t, mock.ExpectationsWereMet(), "All expectations should be met")
@@ -261,6 +342,12 @@ func TestDeletePostControllerAuditError(t *testing.T) {
 
 	// Mock the Delete query
 	mock.ExpectBegin()
+	// Expect query for post count - return multiple posts so no thread deletion
+	mock.ExpectQuery(`SELECT COUNT\(\*\) FROM posts
+		WHERE thread_id = \? AND post_deleted = 0`).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).
+			AddRow(3)) // Multiple posts in thread
 	mock.ExpectPrepare(`UPDATE posts SET post_deleted = \?
 		WHERE posts.thread_id = \? AND posts.post_num = \? LIMIT 1`).
 		ExpectExec().
