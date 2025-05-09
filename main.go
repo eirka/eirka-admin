@@ -103,10 +103,6 @@ func main() {
 	admin.POST("/ban/file/:ib/:thread/:post", c.BanFileController)
 	admin.POST("/user/resetpassword/:ib", c.ResetPasswordController)
 
-	//admin.DELETE("/thread/:id", c.PurgeThreadController)
-	//admin.DELETE("/post/:thread/:id", c.PurgePostController)
-	//admin.DELETE("/flushcache", c.DeleteCacheController)
-
 	s := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", local.Settings.Admin.Host, local.Settings.Admin.Port),
 		ReadHeaderTimeout: 2 * time.Second,
