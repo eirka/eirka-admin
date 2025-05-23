@@ -51,7 +51,7 @@ func TestDeleteTagController(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body
 	assert.JSONEq(t, successMessage(audit.AuditDeleteTag), response.Body.String(), "Response should match expected success message")
 
@@ -71,7 +71,7 @@ func TestDeleteTagControllerNotProtected(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -98,7 +98,7 @@ func TestDeleteTagControllerNotFound(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusNotFound, response.Code, "HTTP status code should be 404")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrNotFound), response.Body.String(), "Response should match expected error message")
 
@@ -128,7 +128,7 @@ func TestDeleteTagControllerStatusError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -165,7 +165,7 @@ func TestDeleteTagControllerDeleteError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -209,7 +209,7 @@ func TestDeleteTagControllerRedisError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -252,7 +252,7 @@ func TestDeleteTagControllerAuditError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body - should still show success even if audit logging fails
 	assert.JSONEq(t, successMessage(audit.AuditDeleteTag), response.Body.String(), "Response should match expected success message")
 

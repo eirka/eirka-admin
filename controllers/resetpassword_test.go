@@ -25,13 +25,13 @@ func TestResetPasswordControllerNotProtected(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"uid":1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/resetpassword", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -45,13 +45,13 @@ func TestResetPasswordControllerInvalidParam(t *testing.T) {
 
 	// Create invalid JSON request (missing required "uid" field)
 	jsonRequest := []byte(`{}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/resetpassword", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusBadRequest, response.Code, "HTTP status code should be 400")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInvalidParam), response.Body.String(), "Response should match expected error message")
 }

@@ -48,13 +48,13 @@ func TestUpdateTagController(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body
 	assert.JSONEq(t, successMessage(audit.AuditUpdateTag), response.Body.String(), "Response should match expected success message")
 
@@ -71,13 +71,13 @@ func TestUpdateTagControllerNotProtected(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -91,13 +91,13 @@ func TestUpdateTagControllerInvalidParam(t *testing.T) {
 
 	// Create invalid JSON request (missing required fields)
 	jsonRequest := []byte(`{}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusBadRequest, response.Code, "HTTP status code should be 400")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInvalidParam), response.Body.String(), "Response should match expected error message")
 }
@@ -111,13 +111,13 @@ func TestUpdateTagControllerValidateInputError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusBadRequest, response.Code, "HTTP status code should be 400")
-	
+
 	// Check response body contains error message
 	assert.Contains(t, response.Body.String(), "error_message", "Response should contain error message")
 }
@@ -142,13 +142,13 @@ func TestUpdateTagControllerDuplicateTagError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusBadRequest, response.Code, "HTTP status code should be 400")
-	
+
 	// Check response body contains error message about duplicate tag
 	assert.Contains(t, response.Body.String(), "error_message", "Response should contain error message")
 	assert.Contains(t, response.Body.String(), "duplicate", "Response should mention duplicate tag")
@@ -176,13 +176,13 @@ func TestUpdateTagControllerStatusError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -216,13 +216,13 @@ func TestUpdateTagControllerUpdateError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -263,13 +263,13 @@ func TestUpdateTagControllerRedisError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"id": 1, "name": "Updated Tag", "type": 1}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "PUT", "/updatetag", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 

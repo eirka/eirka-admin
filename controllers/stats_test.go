@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/eirka/eirka-admin/models"
 	"github.com/eirka/eirka-libs/db"
 	e "github.com/eirka/eirka-libs/errors"
-	"github.com/eirka/eirka-admin/models"
 )
 
 func TestStatisticsController(t *testing.T) {
@@ -57,19 +57,19 @@ func TestStatisticsController(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Parse response JSON to verify structure
 	var result models.StatisticsType
 	err = json.Unmarshal(response.Body.Bytes(), &result)
 	assert.NoError(t, err, "Response should be valid JSON")
-	
+
 	// Verify data
 	assert.Equal(t, uint(10), result.Threads, "Threads count should match")
 	assert.Equal(t, uint(100), result.Posts, "Posts count should match")
 	assert.Equal(t, uint(50), result.Images, "Images count should match")
 	assert.Equal(t, uint(200), result.Visitors, "Visitors count should match")
 	assert.Equal(t, uint(500), result.Hits, "Hits count should match")
-	
+
 	// Check if we have the right number of data points
 	assert.Equal(t, 6, len(result.Labels), "Should have 6 data points")
 	assert.Equal(t, 2, len(result.Series), "Should have 2 series")
@@ -92,7 +92,7 @@ func TestStatisticsControllerNotProtected(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -119,7 +119,7 @@ func TestStatisticsControllerGetError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -155,7 +155,7 @@ func TestStatisticsControllerVisitorStatsError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -196,7 +196,7 @@ func TestStatisticsControllerPrepareError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -241,7 +241,7 @@ func TestStatisticsControllerPeriodDataError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 

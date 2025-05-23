@@ -43,13 +43,13 @@ func TestBanIPController(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"reason":"test reason"}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body
 	assert.JSONEq(t, successMessage(audit.AuditBanIP), response.Body.String(), "Response should match expected success message")
 
@@ -66,13 +66,13 @@ func TestBanIPControllerNotProtected(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"reason":"test reason"}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -86,13 +86,13 @@ func TestBanIPControllerInvalidParam(t *testing.T) {
 
 	// Create invalid JSON request (missing required "reason" field)
 	jsonRequest := []byte(`{}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusBadRequest, response.Code, "HTTP status code should be 400")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInvalidParam), response.Body.String(), "Response should match expected error message")
 }
@@ -118,13 +118,13 @@ func TestBanIPControllerNotFound(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"reason":"test reason"}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusNotFound, response.Code, "HTTP status code should be 404")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrNotFound), response.Body.String(), "Response should match expected error message")
 
@@ -153,13 +153,13 @@ func TestBanIPControllerStatusError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"reason":"test reason"}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -194,13 +194,13 @@ func TestBanIPControllerPostError(t *testing.T) {
 
 	// Create JSON request
 	jsonRequest := []byte(`{"reason":"test reason"}`)
-	
+
 	// Perform the request
 	response := performJSONRequest(router, "POST", "/banip", jsonRequest)
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 

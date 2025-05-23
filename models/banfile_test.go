@@ -104,7 +104,7 @@ func TestBanFileStatusNotFound(t *testing.T) {
 
 	// Execute the method
 	err = model.Status()
-	
+
 	// Should return ErrNotFound
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, e.ErrNotFound, err, "Error should be ErrNotFound")
@@ -139,7 +139,7 @@ func TestBanFileStatusError(t *testing.T) {
 
 	// Execute the method
 	err = model.Status()
-	
+
 	// Should return an error
 	if assert.Error(t, err, "An error was expected") {
 		assert.Contains(t, err.Error(), "database error", "Error should contain the expected message")
@@ -195,7 +195,7 @@ func TestBanFilePostInvalid(t *testing.T) {
 
 	// Execute the method
 	err = model.Post()
-	
+
 	// Should return error about invalid model
 	if assert.Error(t, err, "An error was expected") {
 		assert.Equal(t, errors.New("BanFileModel is not valid"), err, "Error should match expected message")
@@ -227,7 +227,7 @@ func TestBanFilePostError(t *testing.T) {
 
 	// Execute the method
 	err = model.Post()
-	
+
 	// Should return an error
 	if assert.Error(t, err, "An error was expected") {
 		assert.Contains(t, err.Error(), "database error", "Error should contain the expected message")

@@ -82,7 +82,7 @@ func TestDeletePostControllerNotProtected(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 }
@@ -111,7 +111,7 @@ func TestDeletePostControllerNotFound(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusNotFound, response.Code, "HTTP status code should be 404")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrNotFound), response.Body.String(), "Response should match expected error message")
 
@@ -143,7 +143,7 @@ func TestDeletePostControllerStatusError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -191,7 +191,7 @@ func TestDeletePostControllerDeleteError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -246,7 +246,7 @@ func TestDeletePostControllerRedisError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusInternalServerError, response.Code, "HTTP status code should be 500")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), response.Body.String(), "Response should match expected error message")
 
@@ -363,7 +363,7 @@ func TestDeletePostControllerAuditError(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusOK, response.Code, "HTTP status code should be 200")
-	
+
 	// Check response body - should still show success even if audit logging fails
 	assert.JSONEq(t, successMessage(audit.AuditDeletePost), response.Body.String(), "Response should match expected success message")
 

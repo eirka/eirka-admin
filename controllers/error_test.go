@@ -23,7 +23,7 @@ func TestErrorController(t *testing.T) {
 
 	// Check response code
 	assert.Equal(t, http.StatusNotFound, response.Code, "HTTP status code should be 404")
-	
+
 	// Check response body
 	assert.JSONEq(t, errorMessage(e.ErrNotFound), response.Body.String(), "Response should match expected error message")
 }

@@ -22,7 +22,7 @@ func TestStickyThreadController(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
-	// Use our mock middleware 
+	// Use our mock middleware
 	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
 	// Set up routes
@@ -116,7 +116,7 @@ func TestStickyThreadController_NotProtected(t *testing.T) {
 
 	// Use non-protected middleware
 	router.Use(mockNonAdminMiddleware([]uint{1, 1}))
-	
+
 	// Set up routes
 	router.POST("/sticky/:ib/:id", StickyThreadController)
 
@@ -131,7 +131,7 @@ func TestStickyThreadController_NotProtected(t *testing.T) {
 func TestStickyThreadController_DatabaseConnectionError(t *testing.T) {
 	// This test is difficult to implement without access to the database package's internals
 	// We'll simulate a database error by using the error path from a different test
-	
+
 	// Set up Gin
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
@@ -161,7 +161,7 @@ func TestStickyThreadController_DatabaseConnectionError(t *testing.T) {
 	// Check assertions
 	assert.Equal(t, http.StatusInternalServerError, first.Code, "HTTP request code should match")
 	assert.JSONEq(t, errorMessage(e.ErrInternalError), first.Body.String(), "HTTP response should match")
-	
+
 	// Verify all SQL expectations were met
 	assert.NoError(t, mock.ExpectationsWereMet(), "An error was not expected")
 }
@@ -172,7 +172,7 @@ func TestStickyThreadController_RedisError(t *testing.T) {
 	// Set up Gin
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	
+
 	// Use our mock middleware
 	router.Use(mockAdminMiddleware([]uint{1, 1}))
 
