@@ -59,24 +59,24 @@ func TestBoardLogController(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	// Parse response JSON
-	var response map[string]interface{}
+	var response map[string]any
 	err = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 
 	// Check log structure
-	boardlog, ok := response["boardlog"].(map[string]interface{})
+	boardlog, ok := response["boardlog"].(map[string]any)
 	assert.True(t, ok)
 	assert.Equal(t, float64(1), boardlog["current_page"])
 	assert.Equal(t, float64(5), boardlog["total"])
 	assert.Equal(t, float64(1), boardlog["pages"])
 
 	// Check log items
-	items, ok := boardlog["items"].([]interface{})
+	items, ok := boardlog["items"].([]any)
 	assert.True(t, ok)
 	assert.Equal(t, 2, len(items))
 
 	// Check first item
-	firstItem := items[0].(map[string]interface{})
+	firstItem := items[0].(map[string]any)
 	assert.Equal(t, float64(2), firstItem["user_id"])
 	assert.Equal(t, "test", firstItem["user_name"])
 	assert.Equal(t, float64(3), firstItem["user_group"])
