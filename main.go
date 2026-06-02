@@ -23,7 +23,11 @@ import (
 	c "github.com/eirka/eirka-admin/controllers"
 )
 
-func init() {
+// configure performs production runtime setup: the pid file, database and redis
+// connection pools, runtime settings loaded from the database, and CORS domains.
+// It runs from main (not an init func) so that test binaries — which import this
+// package — do not try to write a pid file or open database/redis sockets.
+func configure() {
 
 	// create pid file
 	pidfile.SetPidfilePath("/run/eirka/eirka-admin.pid")
@@ -67,13 +71,23 @@ func init() {
 
 }
 
-func main() {
+// setupRouter builds the gin engine with every route and its middleware.
+//
+// Every functional endpoint is registered on the `admin` group, which enforces
+// authentication (user.Auth) and moderator authorization (user.Protect). The only
+// route intentionally left public is GET /status, a server-wide health check with no
+// board context that the board-scoped Protect middleware cannot gate. That exception
+// is the sole entry in the allowlist enforced by TestRouteSecurity in main_test.go;
+// any new route added outside the `admin` group will fail that test.
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.CORS())
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
 
+	// public health check: the one intentional exception to the auth+mod rule.
+	// Keep it in sync with the allowlist in main_test.go.
 	r.GET("/status", status.StatusController)
 	r.NoRoute(c.ErrorController)
 
@@ -99,6 +113,14 @@ func main() {
 	admin.POST("/ban/ip/:ib/:thread/:post", c.BanIPController)
 	admin.POST("/ban/file/:ib/:thread/:post", c.BanFileController)
 	admin.POST("/user/resetpassword/:ib", c.ResetPasswordController)
+
+	return r
+}
+
+func main() {
+	configure()
+
+	r := setupRouter()
 
 	s := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", local.Settings.Admin.Host, local.Settings.Admin.Port),
