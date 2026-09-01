@@ -108,3 +108,11 @@ The project uses Go's standard testing package along with some helper libraries:
 3. Database connections are pooled and configured via the config file
 4. Redis connections are also pooled
 5. Actions are audited through the audit module from eirka-libs
+
+## Test prerequisites
+
+Go toolchain only, runs offline: the mocks named above (go-sqlmock via `db.NewTestDb()`, redigomock via `redis.NewRedisMock()`) are the whole story - no MySQL, Redis or network. `/etc/pram/pram.conf` is optional, but if present `config/config.go` init loads it in tests too. No CI workflow exists; `staticcheck` is not part of lint.
+
+## Fleet conventions
+
+Verify with `make check` (`go build ./...`, gofmt + `go vet`, `go test -count=1 ./...`; ~2s); Hermes workers surface `make build|lint|test|check` from `Makefile` as verify commands, so keep those target names. Prefer `make build` over the `go build -o eirka-admin` recipe above, which leaves an unignored binary in the tree.
