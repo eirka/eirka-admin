@@ -82,6 +82,18 @@ func configure() {
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// c.ClientIP() is recorded as the moderator IP on every mod-log audit row,
+	// so it must not be client controlled. gin's default trusts every peer and
+	// returns the leftmost X-Forwarded-For entry, which Cloudflare passes through
+	// from the client. Instead, trust only nginx on loopback, and only its
+	// CF-Connecting-IP header, which Cloudflare always overwrites. Any other peer
+	// resolves to its own TCP address.
+	r.RemoteIPHeaders = []string{"CF-Connecting-IP"}
+	err := r.SetTrustedProxies([]string{"127.0.0.1", "::1"})
+	if err != nil {
+		panic("Could not set trusted proxies")
+	}
+
 	r.Use(cors.CORS())
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
