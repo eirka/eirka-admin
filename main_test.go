@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -287,4 +290,113 @@ func csrfPair(t *testing.T) (*http.Cookie, string) {
 	require.NotNil(t, cookie, "csrf.Cookie should set the %q cookie", csrf.CookieName)
 
 	return cookie, w.Body.String()
+}
+
+// countingReader records how much of a request body was consumed
+type countingReader struct {
+	r    io.Reader
+	read int
+}
+
+func (c *countingReader) Read(p []byte) (int, error) {
+	n, err := c.r.Read(p)
+	c.read += n
+	return n, err
+}
+
+// TestBodyLimitBeforeCSRF guards that the real router caps a request body
+// before csrf.Verify reads it. Without an X-XSRF-TOKEN header, Verify reads the
+// token from the form, which parses the whole body, and it runs on every route
+// (including NoRoute) before auth.
+func TestBodyLimitBeforeCSRF(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	// far past the limit; before the fix it was read in full
+	const bodySize = 4 << 20
+
+	multipartHead := "--x\r\nContent-Disposition: form-data; name=\"file\"; filename=\"a.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n"
+
+	tests := []struct {
+		name        string
+		method      string
+		path        string
+		contentType string
+		head        string
+		// declared sends the true Content-Length; otherwise the body is chunked
+		declared bool
+		wantCode int
+		maxRead  int
+	}{
+		{name: "chunked multipart to an admin route", method: http.MethodPost, path: "/ban/ip/1/1/1", contentType: "multipart/form-data; boundary=x", head: multipartHead, wantCode: http.StatusForbidden, maxRead: maxBodySize + 1},
+		{name: "chunked multipart to an unknown route", method: http.MethodPost, path: "/nope", contentType: "multipart/form-data; boundary=x", head: multipartHead, wantCode: http.StatusForbidden, maxRead: maxBodySize + 1},
+		{name: "chunked urlencoded form", method: http.MethodPost, path: "/close/1/1", contentType: "application/x-www-form-urlencoded", head: "csrf_token=", wantCode: http.StatusForbidden, maxRead: maxBodySize + 1},
+		{name: "declared oversized json", method: http.MethodPost, path: "/tag/1", contentType: "application/json", head: `{"name":"`, declared: true, wantCode: http.StatusRequestEntityTooLarge, maxRead: 0},
+	}
+
+	router := setupRouter()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &countingReader{r: io.MultiReader(strings.NewReader(tt.head), bytes.NewReader(make([]byte, bodySize)))}
+			req := httptest.NewRequest(tt.method, tt.path, body)
+			req.Header.Set("Content-Type", tt.contentType)
+			req.ContentLength = -1
+			if tt.declared {
+				req.ContentLength = int64(len(tt.head) + bodySize)
+			}
+
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.wantCode, w.Code, "body: %s", w.Body.String())
+			assert.LessOrEqual(t, body.read, tt.maxRead, "body must not be read past the limit")
+		})
+	}
+}
+
+// TestBodyLimitAllowsSmallBodies checks a body up to the limit still reaches the
+// handler in full, and one past it is cut off. The csrf token is sent in the
+// header, so Verify leaves the body alone.
+func TestBodyLimitAllowsSmallBodies(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	router := setupRouter()
+	// read the whole body; registered after setupRouter so the request still
+	// runs through every global middleware
+	router.POST("/test/body", func(c *gin.Context) {
+		n, err := io.Copy(io.Discard, c.Request.Body)
+		if err != nil {
+			c.String(http.StatusRequestEntityTooLarge, "%d", n)
+			return
+		}
+		c.String(http.StatusOK, "%d", n)
+	})
+
+	cookie, token := csrfPair(t)
+
+	tests := []struct {
+		name     string
+		size     int
+		wantCode int
+	}{
+		{name: "body at the limit", size: maxBodySize, wantCode: http.StatusOK},
+		{name: "chunked body over the limit", size: maxBodySize + 1, wantCode: http.StatusRequestEntityTooLarge},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPost, "/test/body", bytes.NewReader(make([]byte, tt.size)))
+			req.Header.Set("Content-Type", "application/json")
+			attachCSRF(req, http.MethodPost, cookie, token)
+			req.ContentLength = -1
+
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.wantCode, w.Code, "body: %s", w.Body.String())
+			if tt.wantCode == http.StatusOK {
+				assert.Equal(t, strconv.Itoa(tt.size), w.Body.String(), "the whole body should reach the handler")
+			}
+		})
+	}
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/eirka/eirka-libs/cors"
 	"github.com/eirka/eirka-libs/csrf"
 	"github.com/eirka/eirka-libs/db"
+	e "github.com/eirka/eirka-libs/errors"
 	"github.com/eirka/eirka-libs/redis"
 	"github.com/eirka/eirka-libs/status"
 	"github.com/eirka/eirka-libs/user"
@@ -95,6 +96,9 @@ func setupRouter() *gin.Engine {
 	}
 
 	r.Use(cors.CORS())
+	// cap the request body before anything reads it; csrf.Verify parses the
+	// whole form when the token is not sent in a header
+	r.Use(limitBody())
 	// verified the csrf token from the request
 	r.Use(csrf.Verify())
 
@@ -127,6 +131,34 @@ func setupRouter() *gin.Engine {
 	admin.POST("/user/resetpassword/:ib", c.ResetPasswordController)
 
 	return r
+}
+
+// maxBodySize caps every request body. The admin routes take at most a few
+// short JSON fields (a ban reason, a tag name, a password reset).
+const maxBodySize = 64 << 10 // 64 KiB
+
+// limitBody caps the size of every request body. It rejects a request whose
+// declared Content-Length already exceeds the limit, and wraps the body with
+// http.MaxBytesReader so an oversized streaming body is aborted while being read.
+//
+// It is registered globally, ahead of csrf.Verify: that runs on every route
+// before auth, and a request without the X-XSRF-TOKEN header has its token read
+// from the form, which parses the entire body into memory and temp files.
+func limitBody() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Fast path: reject immediately when the client declares an oversized body.
+		if ctx.Request.ContentLength > maxBodySize {
+			ctx.JSON(http.StatusRequestEntityTooLarge, gin.H{"error_message": e.ErrInvalidParam.Error()})
+			ctx.Error(e.ErrInvalidParam).SetMeta("limitBody.ContentLength")
+			ctx.Abort()
+			return
+		}
+
+		// Backstop for chunked/unknown-length bodies: cap the body as it streams.
+		ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, maxBodySize)
+
+		ctx.Next()
+	}
 }
 
 func main() {
